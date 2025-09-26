@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use UPSERT to create or update user record
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (supabaseAdmin as any)
       .from('users')
       .upsert({
         id: userId,
