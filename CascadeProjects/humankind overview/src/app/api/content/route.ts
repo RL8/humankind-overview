@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/middleware/auth-middleware'
-import { ContentService, ContentType, ContentStatus } from '@/services/content-service'
+import { ContentService } from '@/services/content-service'
+import { ContentType } from '@/types'
 import { UserRole } from '@/lib/auth'
 
 // Get content list with optional filtering
@@ -12,7 +13,7 @@ async function handleGetContent(req: NextRequest & { user?: any }) {
       query: searchParams.get('q') || undefined,
       content_type: searchParams.get('type') as ContentType || undefined,
       language: searchParams.get('language') || undefined,
-      status: searchParams.get('status') as ContentStatus || undefined,
+      status: searchParams.get('status') || undefined,
       programme_id: searchParams.get('programme_id') || undefined,
       limit: parseInt(searchParams.get('limit') || '20'),
       offset: parseInt(searchParams.get('offset') || '0')
