@@ -6,7 +6,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
   role VARCHAR(50) NOT NULL CHECK (role IN ('composer', 'principal', 'client', 'admin')),
   name VARCHAR(255) NOT NULL,

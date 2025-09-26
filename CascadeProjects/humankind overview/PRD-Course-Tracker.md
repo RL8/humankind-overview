@@ -201,7 +201,7 @@ training-programs/
 │       ├── i18n-variables.yaml
 │       └── client-placeholders.yaml
 ├── clients/
-│   ├── acme-corp/
+│   ├── humankind/
 │   │   └── floorbook-approach/
 │   │       ├── content-grids/
 │   │       │   ├── en/floorbook-approach-en.md

@@ -23,12 +23,18 @@ export interface TrainingProgramme {
   created_by: string
   created_at: string
   updated_at: string
+  is_default?: boolean
+  users?: {
+    name: string
+    organization?: string
+  }
 }
 
 export interface CreateTrainingProgrammeInput {
   title: string
   description?: string
   client_id: string
+  created_by?: string
 }
 
 export interface UpdateTrainingProgrammeInput {

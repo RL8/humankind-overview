@@ -25,6 +25,7 @@ interface AuthContextType {
   updatePassword: (password: string) => Promise<boolean>
   updateProfile: (updates: { name?: string; organization?: string }) => Promise<boolean>
   refreshSession: () => Promise<void>
+  createTestUser: (role?: UserRole) => Promise<boolean>
   clearError: () => void
 }
 
@@ -85,19 +86,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Get user role from our database
       const role = await AuthService.getUserRole(session.user.id)
       
+      // If no role found in database, try to get it from user metadata as fallback
+      const fallbackRole = role || session.user.user_metadata?.role
+      
       setUser({
         id: session.user.id,
         email: session.user.email!,
         name: session.user.user_metadata?.name,
-        role: role || undefined,
+        role: fallbackRole || undefined,
         organization: session.user.user_metadata?.organization
       })
     } catch (error) {
       console.error('Error setting user from session:', error)
+      // Fallback to user metadata only
       setUser({
         id: session.user.id,
         email: session.user.email!,
         name: session.user.user_metadata?.name,
+        role: session.user.user_metadata?.role || undefined,
         organization: session.user.user_metadata?.organization
       })
     }
@@ -283,6 +289,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const createTestUser = async (role: UserRole = UserRole.CLIENT): Promise<boolean> => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const { success, user: testUser, error: testError } = await AuthService.createTestUser(role)
+      
+      if (!success || testError) {
+        setError(testError || 'Failed to create test user')
+        return false
+      }
+
+      if (!testUser) {
+        setError('No test user data returned')
+        return false
+      }
+
+      // Auto-login with the test user
+      const loginSuccess = await login({
+        email: testUser.email,
+        password: testUser.password
+      })
+
+      return loginSuccess
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Test user creation failed'
+      setError(errorMessage)
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const clearError = () => {
     setError(null)
   }
@@ -299,6 +338,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updatePassword,
     updateProfile,
     refreshSession,
+    createTestUser,
     clearError
   }
 

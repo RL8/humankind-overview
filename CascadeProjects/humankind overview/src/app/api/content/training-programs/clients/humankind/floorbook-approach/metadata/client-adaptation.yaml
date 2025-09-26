@@ -1,0 +1,26 @@
+client_name: "Humankind"
+client_id: "humankind"
+adaptation_type: "corporate_training"
+base_training_program: "floorbook-approach"
+customizations:
+  target_audience: "corporate trainers and HR professionals"
+  industry_focus: "leadership development"
+  terminology_changes:
+    - from: "children"
+      to: "employees"
+    - from: "classroom"
+      to: "training room"
+    - from: "educator"
+      to: "corporate trainer"
+    - from: "Talking Tub"
+      to: "Discussion Circle"
+  branding:
+    company_name: "Humankind"
+    company_logo: "humankind-logo.png"
+    brand_colors: "Corporate Blue and Silver"
+    contact_email: "training@humankind.com"
+    website: "www.humankind.com"
+  content_adaptations:
+    - focus_area: "leadership development"
+    - industry_examples: "corporate scenarios"
+    - case_studies: "business case studies"

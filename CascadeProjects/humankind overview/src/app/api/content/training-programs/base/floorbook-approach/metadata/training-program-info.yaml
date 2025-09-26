@@ -1,0 +1,29 @@
+name: "Floorbook Approach"
+description: "A comprehensive learning series that transforms educators from traditional teaching to inquiry-based learning"
+version: "1.0.0"
+status: "active"
+created_date: "2024-01-01"
+last_updated: "2024-01-01"
+author: "Mindstretchers Ltd"
+languages:
+  - "en"
+  - "nl"
+  - "fr"
+  - "zh"
+courses:
+  - id: "course1"
+    title: "Foundations of Inquiry-Based Learning"
+    level: "Foundation"
+    modules: 4
+  - id: "course2"
+    title: "My First Floorbook & Talking Tub"
+    level: "Beginner"
+    modules: 4
+  - id: "course3"
+    title: "Next Level Floorbooks & Talking Tubs"
+    level: "Intermediate"
+    modules: 4
+  - id: "course4"
+    title: "Mastering the Floorbook Approach"
+    level: "Advanced"
+    modules: 4

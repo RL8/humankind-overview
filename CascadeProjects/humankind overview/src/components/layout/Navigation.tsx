@@ -89,14 +89,14 @@ export default function Navigation() {
         return [
           ...baseItems,
           { name: 'Content', href: '/content', icon: ContentIcon },
-          { name: 'Programmes', href: '/programmes', icon: ProgrammesIcon }
+          { name: 'Programmes', href: '/training-programs', icon: ProgrammesIcon }
         ]
       
       case UserRole.PRINCIPAL:
         return [
           ...baseItems,
           { name: 'Content', href: '/content', icon: ContentIcon },
-          { name: 'Programmes', href: '/programmes', icon: ProgrammesIcon },
+          { name: 'Programmes', href: '/training-programs', icon: ProgrammesIcon },
           { name: 'Users', href: '/users', icon: UsersIcon },
           { name: 'Reports', href: '/reports', icon: ReportsIcon }
         ]
@@ -104,6 +104,7 @@ export default function Navigation() {
       case UserRole.CLIENT:
         return [
           ...baseItems,
+          { name: 'Dashboard', href: '/client/dashboard', icon: DashboardIcon },
           { name: 'My Training', href: '/training', icon: TrainingIcon },
           { name: 'Progress', href: '/progress', icon: ProgressIcon }
         ]
@@ -112,7 +113,7 @@ export default function Navigation() {
         return [
           ...baseItems,
           { name: 'Content', href: '/content', icon: ContentIcon },
-          { name: 'Programmes', href: '/programmes', icon: ProgrammesIcon },
+          { name: 'Programmes', href: '/training-programs', icon: ProgrammesIcon },
           { name: 'Users', href: '/users', icon: UsersIcon },
           { name: 'Reports', href: '/reports', icon: ReportsIcon },
           { name: 'Settings', href: '/settings', icon: SettingsIcon }

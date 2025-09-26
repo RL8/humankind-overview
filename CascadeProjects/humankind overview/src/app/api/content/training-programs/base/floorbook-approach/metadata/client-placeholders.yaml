@@ -1,0 +1,14 @@
+# Base placeholders for client customization
+# These will be overridden by client-specific values
+
+default:
+  course_title: "{{course_title}}"
+  course_subtitle: "{{course_subtitle}}"
+  module_title: "{{module_title}}"
+  case_study_title: "{{case_study_title}}"
+  example_title: "{{example_title}}"
+  company_name: "{{company_name}}"
+  company_logo: "{{company_logo}}"
+  brand_colors: "{{brand_colors}}"
+  contact_email: "{{contact_email}}"
+  website: "{{website}}"

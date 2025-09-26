@@ -121,7 +121,7 @@ export class AuthService {
             role: data.role,
             organization: data.organization || null,
             created_at: new Date().toISOString()
-          })
+          } as any)
 
         if (dbError) {
           console.error('Error creating user record:', dbError)
@@ -165,7 +165,7 @@ export class AuthService {
 
       // Update last login timestamp
       if (authData.user) {
-        await supabase
+        await (supabase as any)
           .from('users')
           .update({ last_login: new Date().toISOString() })
           .eq('id', authData.user.id)
@@ -269,7 +269,7 @@ export class AuthService {
     }
 
     // Update users table
-    const { error: dbError } = await supabase
+    const { error: dbError } = await (supabase as any)
       .from('users')
       .update(updates)
       .eq('id', user.id)
@@ -284,20 +284,63 @@ export class AuthService {
   // Get user role
   static async getUserRole(userId?: string): Promise<UserRole | null> {
     const user = userId ? { id: userId } : await this.getCurrentUser()
-    if (!user) return null
-
-    const { data, error } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (error || !data) {
-      console.error('Error fetching user role:', error)
+    if (!user) {
+      console.log('No user provided to getUserRole')
       return null
     }
 
-    return data.role as UserRole
+    console.log('Fetching role for user:', user.id)
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('role, email, name')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (error) {
+      console.error('Error fetching user role:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      return null
+    }
+
+    // Handle case where no user record exists yet
+    if (!data) {
+      console.log('No user role found for user:', user.id)
+      console.log('This means the user record was not created in the database')
+      
+      // Try to create the user record if it doesn't exist
+      console.log('Attempting to create missing user record...')
+      try {
+        const currentUser = await this.getCurrentUser()
+        if (currentUser) {
+          const { error: insertError } = await supabase
+            .from('users')
+            .insert({
+              id: currentUser.id,
+              email: currentUser.email!,
+              name: currentUser.user_metadata?.name || 'Unknown User',
+              role: currentUser.user_metadata?.role || 'client',
+              organization: currentUser.user_metadata?.organization || null,
+              created_at: new Date().toISOString()
+            } as any)
+          
+          if (insertError) {
+            console.error('Failed to create missing user record:', insertError)
+          } else {
+            console.log('Successfully created missing user record')
+            // Return the role from metadata as fallback
+            return (currentUser.user_metadata?.role as UserRole) || UserRole.CLIENT
+          }
+        }
+      } catch (createError) {
+        console.error('Error creating missing user record:', createError)
+      }
+      
+      return null
+    }
+
+    console.log('Found user role:', (data as any).role, 'for user:', (data as any).email)
+    return (data as any).role as UserRole
   }
 
   // Check if user has role
@@ -316,7 +359,7 @@ export class AuthService {
   static async assignRole(userId: string, role: UserRole): Promise<{ error: AuthError | null }> {
     try {
       // Update users table
-      const { error: dbError } = await supabaseAdmin
+      const { error: dbError } = await (supabaseAdmin as any)
         .from('users')
         .update({ role })
         .eq('id', userId)
@@ -342,6 +385,36 @@ export class AuthService {
           name: 'UnknownError',
           message: error instanceof Error ? error.message : 'An unknown error occurred'
         } as AuthError
+      }
+    }
+  }
+
+  // Create test user (development only)
+  static async createTestUser(role: UserRole = UserRole.CLIENT): Promise<{ 
+    success: boolean
+    user?: { email: string; password: string; name: string; role: string }
+    error?: string 
+  }> {
+    try {
+      const response = await fetch('/api/test-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ role }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to create test user' }
+      }
+
+      return { success: true, user: data.user }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
       }
     }
   }
