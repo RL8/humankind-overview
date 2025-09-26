@@ -150,4 +150,61 @@ export class ContentService {
     }
     return response.json()
   }
+
+  // Content management
+  static async getContent(id: string) {
+    const response = await fetch(`${this.baseUrl}/content/${id}`)
+    if (!response.ok) {
+      if (response.status === 404) return null
+      throw new Error('Failed to fetch content')
+    }
+    return response.json()
+  }
+
+  static async updateContent(id: string, data: any) {
+    const response = await fetch(`${this.baseUrl}/content/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    if (!response.ok) {
+      throw new Error('Failed to update content')
+    }
+    return response.json()
+  }
+
+  static async deleteContent(id: string) {
+    const response = await fetch(`${this.baseUrl}/content/${id}`, {
+      method: 'DELETE',
+    })
+    if (!response.ok) {
+      throw new Error('Failed to delete content')
+    }
+    return response.json()
+  }
+
+  static async getContentMetadata(id: string) {
+    const response = await fetch(`${this.baseUrl}/content/${id}/metadata`)
+    if (!response.ok) {
+      if (response.status === 404) return null
+      throw new Error('Failed to fetch content metadata')
+    }
+    return response.json()
+  }
+
+  static async updateContentMetadata(id: string, metadata: any) {
+    const response = await fetch(`${this.baseUrl}/content/${id}/metadata`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(metadata),
+    })
+    if (!response.ok) {
+      throw new Error('Failed to update content metadata')
+    }
+    return response.json()
+  }
 }
