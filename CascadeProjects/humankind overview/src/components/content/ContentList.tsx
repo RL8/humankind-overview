@@ -27,7 +27,7 @@ export default function ContentList({
   className = ''
 }: ContentListProps) {
   const { user, session } = useAuth()
-  const [content, setContent] = useState<(ContentFile | ContentSearchResult)[]>([])
+  const [content, setContent] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
