@@ -44,7 +44,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
       // Note: In a real app, you'd also fetch course details
       setCourse({
         id: params.id,
-        programme_id: '',
+        program_id: '',
         title: 'Sample Course',
         description: 'Course description',
         order_index: 0,
