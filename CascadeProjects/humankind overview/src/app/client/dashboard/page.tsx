@@ -38,9 +38,9 @@ export default function ClientDashboardPage() {
       // Calculate stats
       setStats({
         totalPrograms: clientPrograms.length,
-        pendingReview: clientPrograms.filter(p => p.status === 'in_review').length,
-        approved: clientPrograms.filter(p => p.status === 'approved').length,
-        completed: clientPrograms.filter(p => p.status === 'published').length
+        pendingReview: clientPrograms.filter((p: any) => p.status === 'in_review').length,
+        approved: clientPrograms.filter((p: any) => p.status === 'approved').length,
+        completed: clientPrograms.filter((p: any) => p.status === 'published').length
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dashboard data')
