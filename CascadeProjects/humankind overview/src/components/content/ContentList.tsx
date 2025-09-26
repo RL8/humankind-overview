@@ -272,7 +272,7 @@ export default function ContentList({
 }
 
 interface ContentItemProps {
-  content: ContentFile | ContentSearchResult
+  content: any
   onClick?: () => void
   onDownload?: () => void
   onDelete?: () => void
