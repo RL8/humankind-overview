@@ -13,9 +13,9 @@ export async function PUT(
     if (status !== undefined) updateData.status = status
     if (message !== undefined) updateData.message = message
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('comments')
-      .update(updateData as any)
+      .update(updateData)
       .eq('id', params.id)
       .select(`
         *,
