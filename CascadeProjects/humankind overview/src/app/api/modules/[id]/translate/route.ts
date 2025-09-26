@@ -42,7 +42,7 @@ export async function POST(
     const translation = await TranslationService.translateText({
       text: module.content,
       sourceLanguage: module.language || 'en',
-      targetLanguage
+      targetLanguage: target_language
     })
 
     // Create a new module with translated content
