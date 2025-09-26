@@ -9,7 +9,7 @@ export async function PUT(
     const body = await request.json()
     const { status, message } = body
 
-    const updateData: any = {}
+    const updateData: { status?: string; message?: string } = {}
     if (status !== undefined) updateData.status = status
     if (message !== undefined) updateData.message = message
 
