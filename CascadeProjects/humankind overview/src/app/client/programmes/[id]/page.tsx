@@ -74,7 +74,7 @@ export default function ClientProgrammePage({ params }: ClientProgrammePageProps
     if (!programme) return
 
     try {
-      await ContentService.updateTrainingProgramme(programme.id, { status: 'approved' })
+      await ContentService.updateTrainingProgram(programme.id, { status: 'approved' })
       setProgramme({ ...programme, status: 'approved' })
       alert('Programme approved successfully!')
     } catch (err) {
