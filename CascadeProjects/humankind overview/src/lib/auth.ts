@@ -281,7 +281,7 @@ export class AuthService {
     return { error: authError }
   }
 
-  // Get user role
+  // Get user role using server-side API
   static async getUserRole(userId?: string): Promise<UserRole | null> {
     const user = userId ? { id: userId } : await this.getCurrentUser()
     if (!user) {
@@ -291,100 +291,66 @@ export class AuthService {
 
     console.log('Fetching role for user:', user.id)
 
-    const { data, error } = await supabase
-      .from('users')
-      .select('role, email, name')
-      .eq('id', user.id)
-      .maybeSingle()
+    try {
+      // Use server-side API
+      const response = await fetch(`/api/users/role?userId=${user.id}`)
+      const result = await response.json()
 
-    if (error) {
-      console.error('Error fetching user role:', error)
-      console.error('Error details:', JSON.stringify(error, null, 2))
-      
-      // If it's a PGRST116 error (no rows found), treat it as no data
-      if (error.code === 'PGRST116') {
-        console.log('No user record found in database (PGRST116)')
-        // Continue to the no-data handling below
-      } else {
+      if (!response.ok) {
+        console.error('Error fetching user role:', result.error)
         return null
       }
-    }
 
-    // Handle case where no user record exists yet
-    if (!data) {
-      console.log('No user role found for user:', user.id)
-      console.log('This means the user record was not created in the database')
-      
-      // Try to create the user record if it doesn't exist
-      console.log('Attempting to create missing user record...')
-      try {
-        const currentUser = await this.getCurrentUser()
-        if (currentUser) {
-          // First, try to fetch the user record again in case it was created by another process
-          const { data: existingUser, error: fetchError } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', currentUser.id)
-            .single()
-          
-          if (existingUser && !fetchError) {
-            console.log('User record found after retry:', existingUser.role)
-            return existingUser.role as UserRole
-          }
-          
-          // If still not found, create the user record
-          const { error: insertError } = await supabase
-            .from('users')
-            .insert({
-              id: currentUser.id,
-              email: currentUser.email!,
-              name: currentUser.user_metadata?.name || 'Unknown User',
-              role: currentUser.user_metadata?.role || 'client',
-              organization: currentUser.user_metadata?.organization || null,
-              created_at: new Date().toISOString()
-            } as any)
-          
-          if (insertError) {
-            // Check if it's a duplicate key error (user already exists)
-            if (insertError.code === '23505') {
-              console.log('User record already exists, fetching it...')
-              // Try to fetch the existing user record
-              const { data: existingUser, error: fetchError } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', currentUser.id)
-                .single()
-              
-              if (existingUser && !fetchError) {
-                console.log('Successfully fetched existing user role:', existingUser.role)
-                return existingUser.role as UserRole
-              } else {
-                console.error('Failed to fetch existing user record:', fetchError)
-                // Return fallback role from metadata
-                return (currentUser.user_metadata?.role as UserRole) || UserRole.CLIENT
-              }
-            }
-            console.error('Failed to create missing user record:', insertError)
-            // Return fallback role from metadata even if insert fails
-            return (currentUser.user_metadata?.role as UserRole) || UserRole.CLIENT
-          } else {
-            console.log('Successfully created missing user record')
-            // Return the role from metadata as fallback
-            return (currentUser.user_metadata?.role as UserRole) || UserRole.CLIENT
-          }
-        } else {
-          console.error('Cannot create user record: no current user available')
-          return UserRole.CLIENT // Default fallback
-        }
-      } catch (createError) {
-        console.error('Error creating missing user record:', createError)
-        // Return default role as fallback
+      if (result.success) {
+        console.log('Found user role:', result.role, 'for user:', result.user.email)
+        return result.role as UserRole
+      } else {
+        // User not found, try to create/upsert user record
+        console.log('User not found, creating user record...')
+        return await this.createOrUpdateUser(user.id)
+      }
+    } catch (error) {
+      console.error('Unexpected error in getUserRole:', error)
+      return null
+    }
+  }
+
+  // Create or update user record using server-side API
+  private static async createOrUpdateUser(userId: string): Promise<UserRole | null> {
+    try {
+      const currentUser = await this.getCurrentUser()
+      if (!currentUser) {
+        console.error('Cannot create user record: no current user available')
         return UserRole.CLIENT
       }
-    }
 
-    console.log('Found user role:', (data as any).role, 'for user:', (data as any).email)
-    return (data as any).role as UserRole
+      const response = await fetch('/api/users/upsert', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          email: currentUser.email,
+          name: currentUser.user_metadata?.name || 'Unknown User',
+          role: currentUser.user_metadata?.role || UserRole.CLIENT,
+          organization: currentUser.user_metadata?.organization || null
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        console.error('Error creating/updating user:', result.error)
+        return (currentUser.user_metadata?.role as UserRole) || UserRole.CLIENT
+      }
+
+      console.log('Successfully created/updated user record:', result.user.role)
+      return result.user.role as UserRole
+    } catch (error) {
+      console.error('Error creating/updating user record:', error)
+      return UserRole.CLIENT
+    }
   }
 
   // Check if user has role

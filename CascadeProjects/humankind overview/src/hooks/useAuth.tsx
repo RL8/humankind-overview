@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { AuthService, UserRole, type RegisterData, type LoginData } from '@/lib/auth'
+import { deduplicateUserRequest } from '@/lib/request-deduplication'
 
 interface AuthUser {
   id: string
@@ -104,13 +105,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Set user data from session with caching
+  // Set user data from session with caching and deduplication
   const setUserFromSession = async (session: Session) => {
     if (!session.user) return
 
     try {
-      // Get user role from our database
-      const role = await AuthService.getUserRole(session.user.id)
+      // Use deduplication to prevent race conditions
+      const role = await deduplicateUserRequest(
+        session.user.id,
+        'getUserRole',
+        () => AuthService.getUserRole(session.user.id)
+      )
       
       // If no role found in database, try to get it from user metadata as fallback
       const fallbackRole = role || session.user.user_metadata?.role || 'client'

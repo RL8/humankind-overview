@@ -1,45 +1,66 @@
 import { createClient } from '@supabase/supabase-js'
 import { config } from './config'
 
-// Singleton instances using window object for browser compatibility
-let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null
-let supabaseAdminInstance: ReturnType<typeof createClient<Database>> | null = null
+// Window-level singleton to prevent multiple client instances across module imports
+declare global {
+  interface Window {
+    __supabaseClient?: ReturnType<typeof createClient<Database>>
+    __supabaseAdminClient?: ReturnType<typeof createClient<Database>>
+  }
+}
 
 // Create a single supabase client for interacting with your database
 export const supabase = (() => {
-  if (!supabaseInstance) {
-    console.log('Creating new Supabase client instance')
-    supabaseInstance = createClient<Database>(
-      config.supabase.url,
-      config.supabase.anonKey,
-      {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true
+  if (typeof window !== 'undefined') {
+    if (!window.__supabaseClient) {
+      console.log('Creating new Supabase client instance (window singleton)')
+      window.__supabaseClient = createClient<Database>(
+        config.supabase.url,
+        config.supabase.anonKey,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storage: typeof window !== 'undefined' ? window.localStorage : undefined
+          }
         }
-      }
+      )
+    }
+    return window.__supabaseClient
+  } else {
+    // Server-side fallback
+    return createClient<Database>(
+      config.supabase.url,
+      config.supabase.anonKey
     )
   }
-  return supabaseInstance
 })()
 
 // Create a supabase client with service role for admin operations
 export const supabaseAdmin = (() => {
-  if (!supabaseAdminInstance) {
-    console.log('Creating new Supabase admin client instance')
-    supabaseAdminInstance = createClient<Database>(
+  if (typeof window !== 'undefined') {
+    if (!window.__supabaseAdminClient) {
+      console.log('Creating new Supabase admin client instance (window singleton)')
+      window.__supabaseAdminClient = createClient<Database>(
+        config.supabase.url,
+        config.supabase.serviceRoleKey
+      )
+    }
+    return window.__supabaseAdminClient
+  } else {
+    // Server-side fallback
+    return createClient<Database>(
       config.supabase.url,
       config.supabase.serviceRoleKey
     )
   }
-  return supabaseAdminInstance
 })()
 
 // Export a function to check client instances (for debugging)
 export const getClientInstanceInfo = () => ({
-  hasClient: !!supabaseInstance,
-  hasAdminClient: !!supabaseAdminInstance
+  hasClient: typeof window !== 'undefined' ? !!window.__supabaseClient : true,
+  hasAdminClient: typeof window !== 'undefined' ? !!window.__supabaseAdminClient : true
 })
 
 // Database types (to be updated when schema is finalized)
