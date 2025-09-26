@@ -32,7 +32,7 @@ export default function ClientProgrammePage({ params }: ClientProgrammePageProps
     try {
       setLoading(true)
       const [programmeData, coursesData] = await Promise.all([
-        ContentService.getTrainingProgramme(params.id),
+        ContentService.getTrainingProgram(params.id),
         ContentService.getCourses(params.id)
       ])
       setProgramme(programmeData)
