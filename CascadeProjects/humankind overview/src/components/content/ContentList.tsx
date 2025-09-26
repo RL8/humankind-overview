@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { ContentFile, ContentStatus, ContentSearchResult, ContentType } from '@/types'
+import { ContentType } from '@/types'
 import { formatFileSize, getFileTypeIcon } from '@/lib/storage'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -12,7 +12,7 @@ interface ContentListProps {
   unitId?: string
   showSearch?: boolean
   showFilters?: boolean
-  onContentSelect?: (content: ContentFile | ContentSearchResult) => void
+  onContentSelect?: (content: any) => void
   className?: string
 }
 
