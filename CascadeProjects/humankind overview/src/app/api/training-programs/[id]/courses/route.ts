@@ -55,7 +55,7 @@ export async function POST(
       )
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('courses')
       .insert({
         programme_id: params.id,
