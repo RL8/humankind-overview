@@ -62,7 +62,7 @@ export default function ProgrammeDetailPage({ params }: ProgrammeDetailPageProps
     try {
       const course = await ContentService.createCourse(params.id, {
         ...newCourse,
-        programme_id: params.id
+        program_id: params.id
       })
       setCourses([...courses, course])
       setNewCourse({ title: '', description: '', order_index: courses.length })
