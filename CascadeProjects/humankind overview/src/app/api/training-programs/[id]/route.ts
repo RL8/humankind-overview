@@ -62,7 +62,7 @@ export async function PUT(
     if (status !== undefined) updateData.status = status
     updateData.updated_at = new Date().toISOString()
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('training_programs')
       .update(updateData)
       .eq('id', params.id)
