@@ -18,7 +18,7 @@ export async function POST(
     }
 
     // Get the module
-    const { data: module, error: moduleError } = await supabase
+    const { data: module, error: moduleError } = await (supabase as any)
       .from('modules')
       .select('*')
       .eq('id', params.id)
