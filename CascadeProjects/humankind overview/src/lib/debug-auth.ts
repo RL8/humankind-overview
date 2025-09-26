@@ -13,15 +13,15 @@ export class AuthDebugger {
   static checkClientInstances() {
     const info = getClientInstanceInfo()
     console.log('🔍 Supabase Client Instance Debug Info:')
-    console.log(`- Client instances created: ${info.clientCreationCount}`)
-    console.log(`- Admin client instances created: ${info.adminClientCreationCount}`)
+    console.log(`- Client instances created: N/A`)
+    console.log(`- Admin client instances created: N/A`)
     console.log(`- Has client instance: ${info.hasClient}`)
     console.log(`- Has admin client instance: ${info.hasAdminClient}`)
     
-    if (info.clientCreationCount > 1) {
-      console.warn('⚠️ Multiple client instances detected! This may cause authentication issues.')
+    if (info.hasClient && info.hasAdminClient) {
+      console.log('✅ Both client instances available - good!')
     } else {
-      console.log('✅ Single client instance - good!')
+      console.warn('⚠️ Missing client instances detected!')
     }
     
     return info
