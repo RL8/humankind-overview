@@ -106,7 +106,7 @@ export default function ContentList({
     }
   }
 
-  const handleContentClick = (item: ContentFile | ContentSearchResult) => {
+  const handleContentClick = (item: any) => {
     if (onContentSelect) {
       onContentSelect(item)
     }
