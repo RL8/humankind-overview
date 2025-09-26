@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Include default program if requested
-    let allPrograms = data || []
+    let allPrograms: any[] = data || []
     if (includeDefault) {
       const defaultProgram = DefaultProgramService.getDefaultProgram()
       allPrograms = [defaultProgram, ...allPrograms]
