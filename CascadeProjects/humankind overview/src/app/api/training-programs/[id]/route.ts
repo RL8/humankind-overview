@@ -10,8 +10,8 @@ export async function GET(
       .from('training_programmes')
       .select(`
         *,
-        users!training_programmes_client_id_fkey(name, organization),
-        users!training_programmes_created_by_fkey(name)
+        client:users!training_programmes_client_id_fkey(name, organization),
+        creator:users!training_programmes_created_by_fkey(name)
       `)
       .eq('id', params.id)
       .single()
@@ -61,8 +61,8 @@ export async function PUT(
       .eq('id', params.id)
       .select(`
         *,
-        users!training_programmes_client_id_fkey(name, organization),
-        users!training_programmes_created_by_fkey(name)
+        client:users!training_programmes_client_id_fkey(name, organization),
+        creator:users!training_programmes_created_by_fkey(name)
       `)
       .single()
 

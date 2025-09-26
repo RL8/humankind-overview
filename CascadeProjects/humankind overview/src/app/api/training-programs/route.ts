@@ -17,8 +17,8 @@ export async function GET(request: NextRequest) {
       .from('training_programmes')
       .select(`
         *,
-        users!training_programmes_client_id_fkey(name, organization),
-        users!training_programmes_created_by_fkey(name)
+        client:users!training_programmes_client_id_fkey(name, organization),
+        creator:users!training_programmes_created_by_fkey(name)
       `)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
@@ -91,8 +91,8 @@ export async function POST(request: NextRequest) {
       })
       .select(`
         *,
-        users!training_programmes_client_id_fkey(name, organization),
-        users!training_programmes_created_by_fkey(name)
+        client:users!training_programmes_client_id_fkey(name, organization),
+        creator:users!training_programmes_created_by_fkey(name)
       `)
       .single()
 

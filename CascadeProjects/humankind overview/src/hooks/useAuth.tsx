@@ -36,12 +36,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [initialized, setInitialized] = useState(false)
 
-  // Initialize auth state
+  // Initialize auth state with caching
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Get initial session
+        // Check for cached auth state first
+        const cachedUser = localStorage.getItem('auth-user')
+        const cachedSession = localStorage.getItem('auth-session')
+        
+        if (cachedUser && cachedSession) {
+          try {
+            const parsedUser = JSON.parse(cachedUser)
+            const parsedSession = JSON.parse(cachedSession)
+            
+            // Verify session is still valid
+            if (parsedSession.expires_at && parsedSession.expires_at * 1000 > Date.now()) {
+              setUser(parsedUser)
+              setSession(parsedSession)
+              setLoading(false)
+              setInitialized(true)
+              return
+            }
+          } catch (e) {
+            // Clear invalid cached data
+            localStorage.removeItem('auth-user')
+            localStorage.removeItem('auth-session')
+          }
+        }
+
+        // Get fresh session from Supabase
         const { data: { session: initialSession } } = await supabase.auth.getSession()
         
         if (initialSession) {
@@ -53,6 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setError('Failed to initialize authentication')
       } finally {
         setLoading(false)
+        setInitialized(true)
       }
     }
 
@@ -78,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Set user data from session
+  // Set user data from session with caching
   const setUserFromSession = async (session: Session) => {
     if (!session.user) return
 
@@ -89,23 +115,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If no role found in database, try to get it from user metadata as fallback
       const fallbackRole = role || session.user.user_metadata?.role || 'client'
       
-      setUser({
+      const userData = {
         id: session.user.id,
         email: session.user.email!,
         name: session.user.user_metadata?.name,
         role: fallbackRole as UserRole,
         organization: session.user.user_metadata?.organization
-      })
+      }
+      
+      setUser(userData)
+      
+      // Cache user data and session
+      localStorage.setItem('auth-user', JSON.stringify(userData))
+      localStorage.setItem('auth-session', JSON.stringify(session))
+      
     } catch (error) {
       console.error('Error setting user from session:', error)
       // Fallback to user metadata only with default role
-      setUser({
+      const userData = {
         id: session.user.id,
         email: session.user.email!,
         name: session.user.user_metadata?.name,
         role: (session.user.user_metadata?.role as UserRole) || UserRole.CLIENT,
         organization: session.user.user_metadata?.organization
-      })
+      }
+      
+      setUser(userData)
+      
+      // Cache fallback user data
+      localStorage.setItem('auth-user', JSON.stringify(userData))
+      localStorage.setItem('auth-session', JSON.stringify(session))
     }
   }
 
@@ -189,6 +228,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (logoutError) {
         setError(logoutError.message)
+      } else {
+        setUser(null)
+        setSession(null)
+        
+        // Clear cached auth data
+        localStorage.removeItem('auth-user')
+        localStorage.removeItem('auth-session')
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Logout failed'

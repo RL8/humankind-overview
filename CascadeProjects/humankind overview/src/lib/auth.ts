@@ -320,6 +320,19 @@ export class AuthService {
       try {
         const currentUser = await this.getCurrentUser()
         if (currentUser) {
+          // First, try to fetch the user record again in case it was created by another process
+          const { data: existingUser, error: fetchError } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', currentUser.id)
+            .single()
+          
+          if (existingUser && !fetchError) {
+            console.log('User record found after retry:', existingUser.role)
+            return existingUser.role as UserRole
+          }
+          
+          // If still not found, create the user record
           const { error: insertError } = await supabase
             .from('users')
             .insert({
@@ -332,6 +345,25 @@ export class AuthService {
             } as any)
           
           if (insertError) {
+            // Check if it's a duplicate key error (user already exists)
+            if (insertError.code === '23505') {
+              console.log('User record already exists, fetching it...')
+              // Try to fetch the existing user record
+              const { data: existingUser, error: fetchError } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', currentUser.id)
+                .single()
+              
+              if (existingUser && !fetchError) {
+                console.log('Successfully fetched existing user role:', existingUser.role)
+                return existingUser.role as UserRole
+              } else {
+                console.error('Failed to fetch existing user record:', fetchError)
+                // Return fallback role from metadata
+                return (currentUser.user_metadata?.role as UserRole) || UserRole.CLIENT
+              }
+            }
             console.error('Failed to create missing user record:', insertError)
             // Return fallback role from metadata even if insert fails
             return (currentUser.user_metadata?.role as UserRole) || UserRole.CLIENT
