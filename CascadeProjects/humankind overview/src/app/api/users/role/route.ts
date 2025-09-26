@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user role from database
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (supabaseAdmin as any)
       .from('users')
       .select('role, email, name, organization')
       .eq('id', userId)
