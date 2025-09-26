@@ -1,7 +1,7 @@
-import { TrainingProgramme, Course, Module } from '@/types'
+import { TrainingProgram, Course, Module } from '@/types'
 
 // Hardcoded Floorbook Approach program data
-export const FLOORBOOK_PROGRAM: TrainingProgramme = {
+export const FLOORBOOK_PROGRAM: TrainingProgram = {
   id: 'floorbook-default',
   title: 'Floorbook Approach - Complete Learning Series',
   description: 'A transformative professional learning journey that will revolutionize how you understand children, learning, and your role as an educator. This comprehensive series takes you from foundational philosophy to masterful practice, ensuring each step builds meaningfully on the previous one.',
