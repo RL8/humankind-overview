@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import Navigation from '@/components/layout/Navigation'
 import { ContentService } from '@/services/content-service'
-import { TrainingProgramme, Course, Module } from '@/types'
+import { TrainingProgram, Course, Module } from '@/types'
 import { useAuth } from '@/hooks/useAuth'
 import { UserRole } from '@/lib/auth'
 
@@ -14,7 +14,7 @@ interface ClientProgrammePageProps {
 
 export default function ClientProgrammePage({ params }: ClientProgrammePageProps) {
   const { user } = useAuth()
-  const [programme, setProgramme] = useState<TrainingProgramme | null>(null)
+  const [programme, setProgramme] = useState<TrainingProgram | null>(null)
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedModule, setSelectedModule] = useState<Module | null>(null)
   const [loading, setLoading] = useState(true)
