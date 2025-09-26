@@ -5,7 +5,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import Navigation from '@/components/layout/Navigation'
 import { ContentService } from '@/services/content-service'
 import { DefaultProgramService } from '@/services/default-program-service'
-import { TrainingProgramme, Course, Module } from '@/types'
+import { TrainingProgram, Course, Module } from '@/types'
 import { useAuth } from '@/hooks/useAuth'
 import { UserRole } from '@/lib/auth'
 
@@ -15,7 +15,7 @@ interface ProgrammeDetailPageProps {
 
 export default function ProgrammeDetailPage({ params }: ProgrammeDetailPageProps) {
   const { user } = useAuth()
-  const [programme, setProgramme] = useState<TrainingProgramme | null>(null)
+  const [programme, setProgramme] = useState<TrainingProgram | null>(null)
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
