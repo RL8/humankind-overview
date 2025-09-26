@@ -47,7 +47,7 @@ export default function ClientProgrammePage({ params }: ClientProgrammePageProps
   const loadModuleContent = async (courseId: string, moduleId: string) => {
     try {
       const modules = await ContentService.getModules(courseId)
-      const module = modules.find(m => m.id === moduleId)
+      const module = modules.find((m: any) => m.id === moduleId)
       setSelectedModule(module || null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load module content')
