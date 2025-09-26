@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user exists and get their role
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await (supabase as any)
       .from('users')
       .select('id, role')
       .eq('id', userId)
