@@ -87,23 +87,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const role = await AuthService.getUserRole(session.user.id)
       
       // If no role found in database, try to get it from user metadata as fallback
-      const fallbackRole = role || session.user.user_metadata?.role
+      const fallbackRole = role || session.user.user_metadata?.role || 'client'
       
       setUser({
         id: session.user.id,
         email: session.user.email!,
         name: session.user.user_metadata?.name,
-        role: fallbackRole || undefined,
+        role: fallbackRole as UserRole,
         organization: session.user.user_metadata?.organization
       })
     } catch (error) {
       console.error('Error setting user from session:', error)
-      // Fallback to user metadata only
+      // Fallback to user metadata only with default role
       setUser({
         id: session.user.id,
         email: session.user.email!,
         name: session.user.user_metadata?.name,
-        role: session.user.user_metadata?.role || undefined,
+        role: (session.user.user_metadata?.role as UserRole) || UserRole.CLIENT,
         organization: session.user.user_metadata?.organization
       })
     }

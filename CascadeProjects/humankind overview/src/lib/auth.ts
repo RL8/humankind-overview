@@ -300,7 +300,14 @@ export class AuthService {
     if (error) {
       console.error('Error fetching user role:', error)
       console.error('Error details:', JSON.stringify(error, null, 2))
-      return null
+      
+      // If it's a PGRST116 error (no rows found), treat it as no data
+      if (error.code === 'PGRST116') {
+        console.log('No user record found in database (PGRST116)')
+        // Continue to the no-data handling below
+      } else {
+        return null
+      }
     }
 
     // Handle case where no user record exists yet
@@ -326,17 +333,22 @@ export class AuthService {
           
           if (insertError) {
             console.error('Failed to create missing user record:', insertError)
+            // Return fallback role from metadata even if insert fails
+            return (currentUser.user_metadata?.role as UserRole) || UserRole.CLIENT
           } else {
             console.log('Successfully created missing user record')
             // Return the role from metadata as fallback
             return (currentUser.user_metadata?.role as UserRole) || UserRole.CLIENT
           }
+        } else {
+          console.error('Cannot create user record: no current user available')
+          return UserRole.CLIENT // Default fallback
         }
       } catch (createError) {
         console.error('Error creating missing user record:', createError)
+        // Return default role as fallback
+        return UserRole.CLIENT
       }
-      
-      return null
     }
 
     console.log('Found user role:', (data as any).role, 'for user:', (data as any).email)

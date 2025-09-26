@@ -5,13 +5,24 @@ import { config } from './config'
 let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null
 let supabaseAdminInstance: ReturnType<typeof createClient<Database>> | null = null
 
+// Track client creation to debug multiple instances
+let clientCreationCount = 0
+let adminClientCreationCount = 0
+
 // Create a single supabase client for interacting with your database
 export const supabase = (() => {
   if (!supabaseInstance) {
+    clientCreationCount++
+    console.log(`Creating new Supabase client instance #${clientCreationCount}`)
+    if (clientCreationCount > 1) {
+      console.warn('⚠️ Multiple Supabase client instances detected! This may cause authentication issues.')
+    }
     supabaseInstance = createClient<Database>(
       config.supabase.url,
       config.supabase.anonKey
     )
+  } else {
+    console.log('Reusing existing Supabase client instance')
   }
   return supabaseInstance!
 })()
@@ -19,13 +30,28 @@ export const supabase = (() => {
 // Create a supabase client with service role for admin operations
 export const supabaseAdmin = (() => {
   if (!supabaseAdminInstance) {
+    adminClientCreationCount++
+    console.log(`Creating new Supabase admin client instance #${adminClientCreationCount}`)
+    if (adminClientCreationCount > 1) {
+      console.warn('⚠️ Multiple Supabase admin client instances detected!')
+    }
     supabaseAdminInstance = createClient<Database>(
       config.supabase.url,
       config.supabase.serviceRoleKey
     )
+  } else {
+    console.log('Reusing existing Supabase admin client instance')
   }
   return supabaseAdminInstance!
 })()
+
+// Export a function to check client instances (for debugging)
+export const getClientInstanceInfo = () => ({
+  clientCreationCount,
+  adminClientCreationCount,
+  hasClient: !!supabaseInstance,
+  hasAdminClient: !!supabaseAdminInstance
+})
 
 // Database types (to be updated when schema is finalized)
 export interface Database {
