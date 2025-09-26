@@ -46,7 +46,7 @@ export async function POST(
     })
 
     // Create a new module with translated content
-    const { data: translatedModule, error: createError } = await supabase
+    const { data: translatedModule, error: createError } = await (supabase as any)
       .from('modules')
       .insert({
         course_id: module.course_id,
