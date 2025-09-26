@@ -44,7 +44,7 @@ export default function ProgrammeDetailPage({ params }: ProgrammeDetailPageProps
         setCourses(defaultProgram.courses)
       } else {
         const [programmeData, coursesData] = await Promise.all([
-          ContentService.getTrainingProgramme(params.id),
+          ContentService.getTrainingProgram(params.id),
           ContentService.getCourses(params.id)
         ])
         setProgramme(programmeData)
