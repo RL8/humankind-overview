@@ -207,4 +207,18 @@ export class ContentService {
     }
     return response.json()
   }
+
+  static async createContent(data: any, userId: string) {
+    const response = await fetch(`${this.baseUrl}/content`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ ...data, author_id: userId }),
+    })
+    if (!response.ok) {
+      throw new Error('Failed to create content')
+    }
+    return response.json()
+  }
 }
