@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { ContentSearchResult, ContentType } from '@/services/content-service'
-import { ContentFile, ContentStatus } from '@/types'
+import { ContentType } from '@/services/content-service'
+import { ContentFile, ContentStatus, ContentSearchResult } from '@/types'
 import { formatFileSize, getFileTypeIcon } from '@/lib/storage'
 import { useAuth } from '@/hooks/useAuth'
 
