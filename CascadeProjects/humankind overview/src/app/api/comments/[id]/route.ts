@@ -9,13 +9,13 @@ export async function PUT(
     const body = await request.json()
     const { status, message } = body
 
-    const updateData: Record<string, any> = {}
+    const updateData: any = {}
     if (status !== undefined) updateData.status = status
     if (message !== undefined) updateData.message = message
 
     const { data, error } = await supabase
       .from('comments')
-      .update(updateData)
+      .update(updateData as any)
       .eq('id', params.id)
       .select(`
         *,
