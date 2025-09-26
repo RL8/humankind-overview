@@ -19,14 +19,14 @@ interface AuthContextType {
   session: Session | null
   loading: boolean
   error: string | null
-  login: (data: LoginData) => Promise<boolean>
+  login: (data: LoginData) => Promise<{ success: boolean; user?: any }>
   register: (data: RegisterData) => Promise<boolean>
   logout: () => Promise<void>
   resetPassword: (email: string) => Promise<boolean>
   updatePassword: (password: string) => Promise<boolean>
   updateProfile: (updates: { name?: string; organization?: string }) => Promise<boolean>
   refreshSession: () => Promise<void>
-  createTestUser: (role?: UserRole) => Promise<boolean>
+  createTestUser: (role?: UserRole) => Promise<{ success: boolean; user?: any }>
   clearError: () => void
 }
 
@@ -170,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [session])
 
-  const login = async (data: LoginData): Promise<boolean> => {
+  const login = async (data: LoginData): Promise<{ success: boolean; user?: any }> => {
     setLoading(true)
     setError(null)
 
@@ -179,19 +179,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (authError) {
         setError(authError.message)
-        return false
+        return { success: false }
       }
 
       if (!authUser) {
         setError('Login failed')
-        return false
+        return { success: false }
       }
 
-      return true
+      return { success: true, user: authUser }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed'
       setError(errorMessage)
-      return false
+      return { success: false }
     } finally {
       setLoading(false)
     }
@@ -340,7 +340,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const createTestUser = async (role: UserRole = UserRole.CLIENT): Promise<boolean> => {
+  const createTestUser = async (role: UserRole = UserRole.COMPOSER): Promise<{ success: boolean; user?: any }> => {
     setLoading(true)
     setError(null)
 
@@ -349,25 +349,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (!success || testError) {
         setError(testError || 'Failed to create test user')
-        return false
+        return { success: false }
       }
 
       if (!testUser) {
         setError('No test user data returned')
-        return false
+        return { success: false }
       }
 
       // Auto-login with the test user
-      const loginSuccess = await login({
+      const loginResult = await login({
         email: testUser.email,
         password: testUser.password
       })
 
-      return loginSuccess
+      return loginResult
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Test user creation failed'
       setError(errorMessage)
-      return false
+      return { success: false }
     } finally {
       setLoading(false)
     }

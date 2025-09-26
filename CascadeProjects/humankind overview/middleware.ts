@@ -10,19 +10,34 @@ const supabase = createClient(
 
 // Define protected routes that require authentication
 const protectedRoutes = ['/dashboard', '/profile', '/content', '/training-programs']
+const authRoutes = ['/auth/login', '/auth/register', '/auth/reset-password']
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
-  // Skip middleware for static files, API routes, and home page
+  // Skip middleware for static files, API routes, and access code page
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/static') ||
     pathname.includes('.') ||
-    pathname === '/' // Allow home page to load
+    pathname === '/' || // Allow home page to load
+    pathname === '/access-code' // Allow access code page
   ) {
     return NextResponse.next()
+  }
+
+  // Check if user has access code for auth routes
+  if (authRoutes.some(route => pathname.startsWith(route))) {
+    const accessCode = request.cookies.get('access-code')?.value
+    
+    if (!accessCode || accessCode === 'test-bypass') {
+      // Allow test users to bypass access code check
+      if (accessCode === 'test-bypass') {
+        return NextResponse.next()
+      }
+      return NextResponse.redirect(new URL('/access-code', request.url))
+    }
   }
 
   // Only check authentication for protected routes

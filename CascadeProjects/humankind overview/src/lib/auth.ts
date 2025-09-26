@@ -400,7 +400,7 @@ export class AuthService {
   }
 
   // Create test user (development only)
-  static async createTestUser(role: UserRole = UserRole.CLIENT): Promise<{ 
+  static async createTestUser(role: UserRole = UserRole.COMPOSER): Promise<{ 
     success: boolean
     user?: { email: string; password: string; name: string; role: string }
     error?: string 

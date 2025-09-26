@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
-import { TrainingProgramme, CreateTrainingProgrammeInput } from '@/types'
+import { TrainingProgram, CreateTrainingProgramInput } from '@/types'
 import { DefaultProgramService } from '@/services/default-program-service'
 
 export async function GET(request: NextRequest) {
@@ -14,11 +14,11 @@ export async function GET(request: NextRequest) {
 
     // Get user programs from database
     let query = supabase
-      .from('training_programmes')
+      .from('training_programs')
       .select(`
         *,
-        client:users!training_programmes_client_id_fkey(name, organization),
-        creator:users!training_programmes_created_by_fkey(name)
+        client:users!training_programs_client_id_fkey(name, organization),
+        creator:users!training_programs_created_by_fkey(name)
       `)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
@@ -34,9 +34,9 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query
 
     if (error) {
-      console.error('Error fetching training programmes:', error)
+      console.error('Error fetching training programs:', error)
       return NextResponse.json(
-        { error: 'Failed to fetch training programmes' },
+        { error: 'Failed to fetch training programs' },
         { status: 500 }
       )
     }
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Training programmes API error:', error)
+    console.error('Training programs API error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { title, description, client_id, created_by }: CreateTrainingProgrammeInput = body
+    const { title, description, client_id, created_by }: CreateTrainingProgramInput = body
 
     // Validate required fields
     if (!title || !client_id) {
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await supabase
-      .from('training_programmes')
+      .from('training_programs')
       .insert({
         title,
         description,
@@ -91,15 +91,15 @@ export async function POST(request: NextRequest) {
       })
       .select(`
         *,
-        client:users!training_programmes_client_id_fkey(name, organization),
-        creator:users!training_programmes_created_by_fkey(name)
+        client:users!training_programs_client_id_fkey(name, organization),
+        creator:users!training_programs_created_by_fkey(name)
       `)
       .single()
 
     if (error) {
-      console.error('Error creating training programme:', error)
+      console.error('Error creating training program:', error)
       return NextResponse.json(
-        { error: 'Failed to create training programme' },
+        { error: 'Failed to create training program' },
         { status: 500 }
       )
     }
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data, { status: 201 })
 
   } catch (error) {
-    console.error('Create training programme error:', error)
+    console.error('Create training program error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

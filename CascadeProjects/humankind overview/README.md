@@ -4,7 +4,7 @@ A collaborative training program management platform that enables seamless conte
 
 ## Features
 
-- 📚 **Training Programme Management** - Create and manage comprehensive training programmes with courses, modules, and units
+- 📚 **Training Program Management** - Create and manage comprehensive training programs with courses, modules, and units
 - 👥 **Client Collaboration** - Enable clients to review content, provide feedback, and participate in the authorship process  
 - 🌐 **Multi-Language Support** - Automated translation workflows for Dutch, French, and Simplified Chinese
 - 🔒 **Role-Based Access** - Secure authentication with role-based permissions for composers, principals, and clients

@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { role = 'client' } = await request.json()
+    const { role = 'composer' } = await request.json()
     
     // Validate role
     if (!Object.values(UserRole).includes(role as UserRole)) {

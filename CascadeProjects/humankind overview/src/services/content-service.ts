@@ -1,10 +1,10 @@
-import { TrainingProgramme, Course, Module, Unit, CreateTrainingProgrammeInput, CreateCourseInput, CreateModuleInput, CreateUnitInput } from '@/types'
+import { TrainingProgram, Course, Module, Unit, CreateTrainingProgramInput, CreateCourseInput, CreateModuleInput, CreateUnitInput } from '@/types'
 
 export class ContentService {
   private static baseUrl = '/api'
 
-  // Training Programmes
-  static async getTrainingProgrammes(params?: {
+  // Training Programs
+  static async getTrainingPrograms(params?: {
     clientId?: string
     status?: string
     limit?: number
@@ -20,20 +20,20 @@ export class ContentService {
 
     const response = await fetch(`${this.baseUrl}/training-programs?${searchParams}`)
     if (!response.ok) {
-      throw new Error('Failed to fetch training programmes')
+      throw new Error('Failed to fetch training programs')
     }
     return response.json()
   }
 
-  static async getTrainingProgramme(id: string) {
+  static async getTrainingProgram(id: string) {
     const response = await fetch(`${this.baseUrl}/training-programs/${id}`)
     if (!response.ok) {
-      throw new Error('Failed to fetch training programme')
+      throw new Error('Failed to fetch training program')
     }
     return response.json()
   }
 
-  static async createTrainingProgramme(data: CreateTrainingProgrammeInput) {
+  static async createTrainingProgram(data: CreateTrainingProgramInput) {
     const response = await fetch(`${this.baseUrl}/training-programs`, {
       method: 'POST',
       headers: {
@@ -42,12 +42,12 @@ export class ContentService {
       body: JSON.stringify(data),
     })
     if (!response.ok) {
-      throw new Error('Failed to create training programme')
+      throw new Error('Failed to create training program')
     }
     return response.json()
   }
 
-  static async updateTrainingProgramme(id: string, data: Partial<TrainingProgramme>) {
+  static async updateTrainingProgram(id: string, data: Partial<TrainingProgram>) {
     const response = await fetch(`${this.baseUrl}/training-programs/${id}`, {
       method: 'PUT',
       headers: {
@@ -56,32 +56,32 @@ export class ContentService {
       body: JSON.stringify(data),
     })
     if (!response.ok) {
-      throw new Error('Failed to update training programme')
+      throw new Error('Failed to update training program')
     }
     return response.json()
   }
 
-  static async deleteTrainingProgramme(id: string) {
+  static async deleteTrainingProgram(id: string) {
     const response = await fetch(`${this.baseUrl}/training-programs/${id}`, {
       method: 'DELETE',
     })
     if (!response.ok) {
-      throw new Error('Failed to delete training programme')
+      throw new Error('Failed to delete training program')
     }
     return response.json()
   }
 
   // Courses
-  static async getCourses(programmeId: string) {
-    const response = await fetch(`${this.baseUrl}/training-programs/${programmeId}/courses`)
+  static async getCourses(programId: string) {
+    const response = await fetch(`${this.baseUrl}/training-programs/${programId}/courses`)
     if (!response.ok) {
       throw new Error('Failed to fetch courses')
     }
     return response.json()
   }
 
-  static async createCourse(programmeId: string, data: CreateCourseInput) {
-    const response = await fetch(`${this.baseUrl}/training-programs/${programmeId}/courses`, {
+  static async createCourse(programId: string, data: CreateCourseInput) {
+    const response = await fetch(`${this.baseUrl}/training-programs/${programId}/courses`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

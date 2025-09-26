@@ -6,7 +6,7 @@ import { validateEmail, UserRole } from '@/lib/auth'
 import { config } from '@/lib/config'
 
 interface LoginFormProps {
-  onSuccess?: () => void
+  onSuccess?: (userData?: any) => void
   onRegisterClick?: () => void
   onForgotPasswordClick?: () => void
 }
@@ -44,9 +44,9 @@ export default function LoginForm({ onSuccess, onRegisterClick, onForgotPassword
       return
     }
 
-    const success = await login(formData)
-    if (success && onSuccess) {
-      onSuccess()
+    const result = await login(formData)
+    if (result.success && onSuccess) {
+      onSuccess(result.user)
     }
   }
 
@@ -62,9 +62,9 @@ export default function LoginForm({ onSuccess, onRegisterClick, onForgotPassword
 
   const handleTestUserLogin = async (role: UserRole = UserRole.CLIENT) => {
     clearError()
-    const success = await createTestUser(role)
-    if (success && onSuccess) {
-      onSuccess()
+    const result = await createTestUser(role)
+    if (result.success && onSuccess) {
+      onSuccess(result.user)
     }
   }
 
@@ -174,14 +174,6 @@ export default function LoginForm({ onSuccess, onRegisterClick, onForgotPassword
               <div className="text-center">
                 <p className="text-xs text-gray-500 mb-3">Development Testing</p>
                 <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => handleTestUserLogin(UserRole.CLIENT)}
-                    disabled={loading}
-                    className="w-full px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Quick Test Login (Client)
-                  </button>
                   <button
                     type="button"
                     onClick={() => handleTestUserLogin(UserRole.COMPOSER)}

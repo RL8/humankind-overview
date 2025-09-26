@@ -11,7 +11,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState({
     totalContent: 0,
     recentUploads: 0,
-    programmes: 0,
+    programs: 0,
     users: 0
   })
 
@@ -21,7 +21,7 @@ export default function DashboardPage() {
     setStats({
       totalContent: 0,
       recentUploads: 0,
-      programmes: 0,
+      programs: 0,
       users: 0
     })
   }, [])
@@ -68,9 +68,9 @@ export default function DashboardPage() {
             color: 'blue'
           },
           {
-            title: 'Create Programme',
-            description: 'Start a new training programme',
-            href: '/programmes/new',
+            title: 'Create Program',
+            description: 'Start a new training program',
+            href: '/programs/new',
             icon: '📚',
             color: 'green'
           },
@@ -235,10 +235,10 @@ export default function DashboardPage() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">
-                        Programmes
+                        Programs
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        {stats.programmes}
+                        {stats.programs}
                       </dd>
                     </dl>
                   </div>

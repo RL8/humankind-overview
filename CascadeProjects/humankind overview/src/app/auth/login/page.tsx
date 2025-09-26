@@ -1,27 +1,47 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { UserRole } from '@/lib/auth'
 import LoginForm from '@/components/auth/LoginForm'
 import RegisterForm from '@/components/auth/RegisterForm'
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm'
 
 type AuthMode = 'login' | 'register' | 'forgot-password'
 
+// Helper function to determine redirect URL based on user role
+const getRedirectUrl = (userRole?: UserRole): string => {
+  switch (userRole) {
+    case UserRole.COMPOSER:
+      return '/training-programs'
+    case UserRole.PRINCIPAL:
+    case UserRole.ADMIN:
+    case UserRole.CLIENT:
+    default:
+      return '/dashboard'
+  }
+}
+
 export default function AuthPage() {
   const { user } = useAuth()
+  const router = useRouter()
   const [mode, setMode] = useState<AuthMode>('login')
 
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      window.location.href = '/dashboard'
+      const redirectUrl = getRedirectUrl(user.role)
+      router.push(redirectUrl)
     }
-  }, [user])
+  }, [user, router])
 
-  const handleAuthSuccess = () => {
-    // Redirect to dashboard after successful auth
-    window.location.href = '/dashboard'
+  const handleAuthSuccess = (userData?: any) => {
+    // Redirect immediately using the user data from login response
+    if (userData) {
+      const redirectUrl = getRedirectUrl(userData.role)
+      router.push(redirectUrl)
+    }
   }
 
   if (user) {

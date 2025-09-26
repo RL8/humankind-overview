@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { Course, CreateCourseInput } from '@/types'
+import { DefaultProgramService } from '@/services/default-program-service'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // Check if this is the default program
+    if (DefaultProgramService.isDefaultProgram(params.id)) {
+      const defaultCourses = DefaultProgramService.getDefaultCourses()
+      return NextResponse.json(defaultCourses)
+    }
+
     const { data, error } = await supabase
       .from('courses')
       .select('*')

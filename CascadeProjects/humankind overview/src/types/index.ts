@@ -13,8 +13,8 @@ export interface User {
   last_login?: string
 }
 
-// Training Programme types
-export interface TrainingProgramme {
+// Training Program types
+export interface TrainingProgram {
   id: string
   title: string
   description?: string
@@ -30,14 +30,14 @@ export interface TrainingProgramme {
   }
 }
 
-export interface CreateTrainingProgrammeInput {
+export interface CreateTrainingProgramInput {
   title: string
   description?: string
   client_id: string
   created_by?: string
 }
 
-export interface UpdateTrainingProgrammeInput {
+export interface UpdateTrainingProgramInput {
   title?: string
   description?: string
   status?: 'draft' | 'in_review' | 'approved' | 'published'
@@ -46,7 +46,7 @@ export interface UpdateTrainingProgrammeInput {
 // Course types
 export interface Course {
   id: string
-  programme_id: string
+  program_id: string
   title: string
   description?: string
   order_index: number
@@ -55,7 +55,7 @@ export interface Course {
 }
 
 export interface CreateCourseInput {
-  programme_id: string
+  program_id: string
   title: string
   description?: string
   order_index: number

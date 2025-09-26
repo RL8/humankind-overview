@@ -4,17 +4,17 @@ import React, { useState, useEffect } from 'react'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import Navigation from '@/components/layout/Navigation'
 import { ContentService } from '@/services/content-service'
-import { TrainingProgramme } from '@/types'
+import { TrainingProgram } from '@/types'
 import { useAuth } from '@/hooks/useAuth'
 import { UserRole } from '@/lib/auth'
 
 export default function ClientDashboardPage() {
   const { user } = useAuth()
-  const [programmes, setProgrammes] = useState<TrainingProgramme[]>([])
+  const [programs, setPrograms] = useState<TrainingProgram[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState({
-    totalProgrammes: 0,
+    totalPrograms: 0,
     pendingReview: 0,
     approved: 0,
     completed: 0
@@ -29,18 +29,18 @@ export default function ClientDashboardPage() {
   const loadClientData = async () => {
     try {
       setLoading(true)
-      const response = await ContentService.getTrainingProgrammes({
+      const response = await ContentService.getTrainingPrograms({
         clientId: user?.id
       })
-      const clientProgrammes = response.data || []
-      setProgrammes(clientProgrammes)
+      const clientPrograms = response.data || []
+      setPrograms(clientPrograms)
       
       // Calculate stats
       setStats({
-        totalProgrammes: clientProgrammes.length,
-        pendingReview: clientProgrammes.filter(p => p.status === 'in_review').length,
-        approved: clientProgrammes.filter(p => p.status === 'approved').length,
-        completed: clientProgrammes.filter(p => p.status === 'published').length
+        totalPrograms: clientPrograms.length,
+        pendingReview: clientPrograms.filter(p => p.status === 'in_review').length,
+        approved: clientPrograms.filter(p => p.status === 'approved').length,
+        completed: clientPrograms.filter(p => p.status === 'published').length
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dashboard data')
@@ -97,7 +97,7 @@ export default function ClientDashboardPage() {
               Welcome back, {user?.name || user?.email?.split('@')[0]}!
             </h1>
             <p className="mt-1 text-sm text-gray-500">
-              Review your training programmes and provide feedback
+              Review your training programs and provide feedback
             </p>
           </div>
 
@@ -119,10 +119,10 @@ export default function ClientDashboardPage() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-medium text-gray-500 truncate">
-                        Total Programmes
+                        Total Programs
                       </dt>
                       <dd className="text-lg font-medium text-gray-900">
-                        {stats.totalProgrammes}
+                        {stats.totalPrograms}
                       </dd>
                     </dl>
                   </div>
@@ -191,47 +191,47 @@ export default function ClientDashboardPage() {
             </div>
           </div>
 
-          {/* Programmes Section */}
+          {/* Programs Section */}
           <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Your Training Programmes
+                Your Training Programs
               </h3>
 
-              {programmes.length === 0 ? (
+              {programs.length === 0 ? (
                 <div className="text-center py-8">
                   <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No programmes yet</h3>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No programs yet</h3>
                   <p className="mt-1 text-sm text-gray-500">
-                    Your training programmes will appear here once they're created.
+                    Your training programs will appear here once they're created.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {programmes.map((programme) => (
-                    <div key={programme.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                  {programs.map((program) => (
+                    <div key={program.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
                       <div className="flex items-center justify-between">
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-lg font-medium text-gray-900">{programme.title}</h4>
-                          {programme.description && (
-                            <p className="mt-1 text-sm text-gray-500">{programme.description}</p>
+                          <h4 className="text-lg font-medium text-gray-900">{program.title}</h4>
+                          {program.description && (
+                            <p className="mt-1 text-sm text-gray-500">{program.description}</p>
                           )}
                           <div className="mt-2 flex items-center text-sm text-gray-500">
-                            <span>{getStatusMessage(programme.status)}</span>
-                            <span className="ml-4">Created {new Date(programme.created_at).toLocaleDateString()}</span>
+                            <span>{getStatusMessage(program.status)}</span>
+                            <span className="ml-4">Created {new Date(program.created_at).toLocaleDateString()}</span>
                           </div>
                         </div>
                         <div className="flex items-center space-x-3">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(programme.status)}`}>
-                            {programme.status.replace('_', ' ')}
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(program.status)}`}>
+                            {program.status.replace('_', ' ')}
                           </span>
                           <button
-                            onClick={() => window.location.href = `/client/programmes/${programme.id}`}
+                            onClick={() => window.location.href = `/client/programs/${program.id}`}
                             className="text-blue-600 hover:text-blue-900 text-sm font-medium"
                           >
-                            {programme.status === 'in_review' ? 'Review Now' : 'View Details'}
+                            {program.status === 'in_review' ? 'Review Now' : 'View Details'}
                           </button>
                         </div>
                       </div>
