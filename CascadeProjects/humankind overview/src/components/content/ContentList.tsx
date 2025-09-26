@@ -34,7 +34,7 @@ export default function ContentList({
   const [filters, setFilters] = useState({
     type: '' as ContentType | '',
     language: '',
-    status: '' as ContentStatus | ''
+    status: '' as string
   })
   const [pagination, setPagination] = useState({
     limit: 20,
