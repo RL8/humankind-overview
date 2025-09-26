@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       .getPublicUrl(filePath)
 
     // Save file metadata to database
-    const { data: dbData, error: dbError } = await supabase
+    const { data: dbData, error: dbError } = await (supabase as any)
       .from('content_files')
       .insert({
         uploaded_by: userId,
