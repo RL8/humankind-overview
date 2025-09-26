@@ -58,8 +58,9 @@ export default function UnifiedAuth() {
       if (result.success) {
         // Set access code cookie for middleware
         document.cookie = `access-code=test-bypass; path=/; max-age=86400` // 24 hours
-        // Redirect to dashboard (test user is already logged in)
-        router.push('/dashboard')
+        // Redirect based on user role (consistent with regular login)
+        const redirectUrl = role === UserRole.COMPOSER ? '/training-programs' : '/dashboard'
+        router.push(redirectUrl)
       } else {
         setError('Failed to create test user')
       }
@@ -118,8 +119,9 @@ export default function UnifiedAuth() {
       })
 
       if (success) {
-        // Redirect to dashboard
-        router.push('/dashboard')
+        // Redirect based on user role (CLIENT role for registration)
+        const redirectUrl = '/dashboard'
+        router.push(redirectUrl)
       } else {
         setError('Registration failed. Please try again.')
       }
