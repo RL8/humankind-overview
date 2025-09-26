@@ -286,7 +286,7 @@ function ContentItem({
   onDelete, 
   showActions = true 
 }: ContentItemProps) {
-  const getStatusColor = (status: ContentStatus) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case 'draft': return 'bg-gray-100 text-gray-800'
       case 'review': return 'bg-yellow-100 text-yellow-800'
