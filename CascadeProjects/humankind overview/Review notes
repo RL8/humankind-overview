@@ -1,0 +1,73 @@
+# Code Review Checklist
+
+## Context Assessment (FIRST)
+- [ ] **Project Phase**: MVP/Prototype/Production?
+- [ ] **Developer Level**: Junior/Mid/Senior?
+- [ ] **Requirements**: What was actually requested?
+- [ ] **Timeline**: How much time is available?
+- [ ] **Team Size**: How many people will maintain this?
+
+## Essential Checks (MANDATORY)
+
+### 1. Basic Functionality
+- [ ] Code compiles and runs without errors
+- [ ] All imports/exports work correctly
+- [ ] Application starts and loads successfully
+- [ ] No console errors or critical warnings
+
+### 2. Requirements Verification
+- [ ] Does the code solve the actual problem?
+- [ ] Are all requested features implemented?
+- [ ] Does it match the specified requirements?
+- [ ] Is the solution appropriate for the context?
+
+## Overengineering Prevention
+
+### 3. Junior Developer Code Review
+- [ ] **Appropriate Complexity**: Is the solution appropriate for their skill level?
+- [ ] **No Premature Optimization**: Are they over-optimizing simple problems?
+- [ ] **No Unnecessary Abstractions**: Are they creating abstractions that don't add value?
+- [ ] **Maintainable Code**: Can the team understand and maintain this?
+- [ ] **Simple Solutions**: Are they using the simplest approach that works?
+
+### 4. Senior Developer Review Process
+- [ ] **Pragmatic Standards**: Am I applying appropriate standards for this context?
+- [ ] **Value-Based Suggestions**: Do my suggestions add proportional value?
+- [ ] **No Enterprise Patterns**: Am I suggesting enterprise patterns for simple problems?
+- [ ] **Context-Appropriate**: Are my recommendations suitable for this project phase?
+- [ ] **Team Capability**: Are my suggestions appropriate for the team's skill level?
+
+## Code Quality (Context-Appropriate)
+
+### 5. Basic Quality Checks
+- [ ] Code is readable and understandable
+- [ ] No obvious bugs or security issues
+- [ ] Error handling where necessary (not everywhere)
+- [ ] Basic performance considerations (no major issues)
+
+### 6. Maintainability
+- [ ] Code can be understood by the team
+- [ ] No unnecessary complexity
+- [ ] Clear naming and structure
+- [ ] Appropriate documentation (not over-documented)
+
+## Final Verification
+
+### 7. Deployment Readiness
+- [ ] Code works as specified
+- [ ] No critical issues
+- [ ] Appropriate for the context
+- [ ] Team can maintain it
+
+---
+
+**Context Guidelines**:
+- **MVP/Prototype**: Focus on "Does it work?" and "Is it simple?"
+- **Production**: Add security, performance, and maintainability checks
+- **Enterprise**: Include comprehensive testing and documentation
+
+**Overengineering Red Flags**:
+- Creating abstractions for single-use cases
+- Implementing patterns that don't match the problem
+- Adding complexity that doesn't provide clear value
+- Suggesting enterprise solutions for simple problems

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import Navigation from '@/components/layout/Navigation'
 import RichTextEditor from '@/components/content/RichTextEditor'
-import CommentSystem from '@/components/common/CommentSystem'
+import { CommentSystem } from '@/components/common/CommentSystem'
 import TranslationWorkspace from '@/components/content/TranslationWorkspace'
 import { ContentService } from '@/services/content-service'
 import { Course, Module, CreateModuleInput } from '@/types'
@@ -331,16 +331,9 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                           {/* Comments Section */}
                           <div className="mt-6">
                             <CommentSystem
-                              contentId={module.id}
-                              contentType="module"
-                              onCommentAdded={(comment) => {
-                                console.log('New comment added:', comment)
-                              }}
-                              onCommentUpdated={(comment) => {
-                                console.log('Comment updated:', comment)
-                              }}
-                              onCommentDeleted={(commentId) => {
-                                console.log('Comment deleted:', commentId)
+                              programId={module.id}
+                              onClose={() => {
+                                console.log('Comment system closed')
                               }}
                             />
                           </div>

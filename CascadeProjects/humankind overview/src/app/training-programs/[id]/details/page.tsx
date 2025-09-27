@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { MarkdownRenderer } from '@/components/common/MarkdownRenderer'
+import MarkdownRenderer from '@/components/common/MarkdownRenderer'
 import { CommentSystem } from '@/components/common/CommentSystem'
 import { TranslationModal } from '@/components/common/TranslationModal'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 
 interface ProgramDetails {
   id: string
@@ -39,6 +40,7 @@ export default function ProgramDetailsPage() {
   const loadProgramDetails = async () => {
     try {
       setLoading(true)
+      setError(null)
       // Mock data for now - will be replaced with actual API call
       const mockProgram: ProgramDetails = {
         id: programId,
@@ -212,7 +214,7 @@ This isn't just professional development—it's a career transformation that wil
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">{program.title}</h1>
                 <p className="text-sm text-gray-500">
-                  Language: {program.language.toUpperCase()} • 
+                  Language: {program.language ? program.language.toUpperCase() : 'EN'} • 
                   Last modified: {new Date(program.lastModified).toLocaleDateString()}
                 </p>
               </div>
@@ -243,28 +245,34 @@ This isn't just professional development—it's a career transformation that wil
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-8">
-            <MarkdownRenderer content={program.content} />
+            <ErrorBoundary>
+              <MarkdownRenderer content={program.content} />
+            </ErrorBoundary>
           </div>
         </div>
       </div>
 
       {/* Comment System */}
       {commentMode && (
-        <CommentSystem
-          programId={programId}
-          onClose={() => setCommentMode(false)}
-        />
+        <ErrorBoundary>
+          <CommentSystem
+            programId={programId}
+            onClose={() => setCommentMode(false)}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Translation Modal */}
       {showTranslationModal && (
-        <TranslationModal
-          programId={programId}
-          programTitle={program.title}
-          currentLanguage={program.language}
-          translationStatus={program.translationStatus}
-          onClose={() => setShowTranslationModal(false)}
-        />
+        <ErrorBoundary>
+          <TranslationModal
+            programId={programId}
+            programTitle={program.title}
+            currentLanguage={program.language}
+            translationStatus={program.translationStatus}
+            onClose={() => setShowTranslationModal(false)}
+          />
+        </ErrorBoundary>
       )}
     </div>
   )

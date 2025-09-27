@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import DOMPurify from 'dompurify'
 
 interface MarkdownRendererProps {
   content: string
@@ -54,7 +55,7 @@ export default function MarkdownRenderer({ content, className = '' }: MarkdownRe
     <div 
       className={`prose prose-sm max-w-none ${className}`}
       dangerouslySetInnerHTML={{ 
-        __html: renderMarkdown(content)
+        __html: DOMPurify.sanitize(renderMarkdown(content))
       }}
     />
   )

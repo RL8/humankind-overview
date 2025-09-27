@@ -43,7 +43,7 @@ export default function TrainingProgramsPage() {
           updated_at: '2024-01-15T10:30:00Z',
           created_by: 'system',
           client_id: null,
-          users: null,
+          users: undefined,
           language: 'en',
           translationStatus: {
             'nl': { exists: true, upToDate: true, lastTranslated: '2024-01-15T11:00:00Z' },
@@ -60,7 +60,7 @@ export default function TrainingProgramsPage() {
           updated_at: '2024-01-15T11:00:00Z',
           created_by: 'system',
           client_id: null,
-          users: null,
+          users: undefined,
           language: 'nl',
           parentProgramId: 'floorbook-approach',
           translationStatus: {
@@ -291,7 +291,7 @@ export default function TrainingProgramsPage() {
                               )}
                               {isTranslation && (
                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                  {program.language?.toUpperCase()} Translation
+                                  {program.language ? program.language.toUpperCase() : 'EN'} Translation
                                 </span>
                               )}
                             </div>

@@ -58,9 +58,7 @@ export function CommentSystem({ programId, onClose }: CommentSystemProps) {
     let textOffset = 0
     const walker = document.createTreeWalker(
       node,
-      NodeFilter.SHOW_TEXT,
-      null,
-      false
+      NodeFilter.SHOW_TEXT
     )
     
     let currentNode
