@@ -32,6 +32,7 @@ export default function ProgramDetailsPage() {
   const [error, setError] = useState<string | null>(null)
   const [showTranslationModal, setShowTranslationModal] = useState(false)
   const [commentMode, setCommentMode] = useState(false)
+  const [selectedTheme, setSelectedTheme] = useState<'default' | 'minimal' | 'academic' | 'modern' | 'warm'>('default')
 
   useEffect(() => {
     loadProgramDetails()
@@ -41,77 +42,25 @@ export default function ProgramDetailsPage() {
     try {
       setLoading(true)
       setError(null)
-      // Mock data for now - will be replaced with actual API call
-      const mockProgram: ProgramDetails = {
+      
+      // Determine filename based on program ID
+      const filename = (programId === 'floorbook_default' || programId === 'floorbook-approach')
+        ? 'floorbook-approach-complete-series-en-v2' 
+        : programId
+      
+      const response = await fetch(`/api/content/markdown/${filename}`)
+      
+      if (!response.ok) {
+        throw new Error(`Failed to load content: ${response.statusText}`)
+      }
+      
+      const data = await response.json()
+      
+      const program: ProgramDetails = {
         id: programId,
         title: 'Floorbook Approach - Complete Learning Series',
         language: 'en',
-        content: `# Floorbook Approach - Complete Learning Series
-
-## Table of Contents
-- [Series Overview](#series-overview)
-- [Course 1: Foundations of Inquiry-Based Learning](#course-1-foundations-of-inquiry-based-learning)
-- [Course 2: My First Floorbook & Talking Tub](#course-2-my-first-floorbook--talking-tub)
-- [Course 3: Next Level Floorbooks & Talking Tubs](#course-3-next-level-floorbooks--talking-tubs)
-- [Course 4: Mastering the Floorbook Approach](#course-4-mastering-the-floorbook-approach)
-
----
-
-## Series Overview
-
-Welcome to a transformative professional learning journey that will revolutionize how you understand children, learning, and your role as an educator. The Floorbook Approach Learning Series is carefully designed as a progressive pathway that takes you from foundational philosophy to masterful practice, ensuring each step builds meaningfully on the previous one.
-
-This comprehensive series recognizes that becoming an inquiry-based educator is not just about learning new techniques—it's about fundamentally shifting your mindset, developing sophisticated skills, and ultimately becoming a leader who can transform learning environments and mentor others. Each course is designed to meet you where you are while challenging you to grow beyond what you thought possible.
-
-## Progressive Learning Pathway
-
-### **Foundation → Beginner → Intermediate → Advanced**
-
-**Course 1: Foundations of Inquiry-Based Learning**
-*The Philosophical Foundation*
-Begin your transformation by understanding the revolutionary shift from traditional teaching to child-centered learning. You'll discover how to see children as natural researchers and capable thinkers, learning to ask questions that spark curiosity rather than test knowledge. This foundation is essential—without this mindset shift, the techniques in later courses won't reach their full potential.
-
-**Course 2: My First Floorbook & Talking Tub**
-*From Theory to Practice*
-Put your new understanding into action by creating your very first Floorbook and Talking Tub, transforming you from observer to active documenter of children's brilliant thinking. You'll learn the art of capturing authentic conversations, making children's learning visible, and turning everyday moments into powerful documentation. Through practical exercises and real classroom examples, you'll gain confidence in facilitating meaningful discussions and creating collaborative learning records that children are excited to revisit and build upon. By course completion, you'll have working Floorbooks and the skills to facilitate rich conversations that honor children's natural curiosity.
-
-**Course 3: Next Level Floorbooks & Talking Tubs**
-*Sophisticated Practice*
-Elevate your practice to new heights with sophisticated techniques that transform good documentation into extraordinary learning experiences. This intermediate course empowers you to create deliberate provocations that spark deep investigations, facilitate sustained inquiries that unfold over weeks, and craft documentation that tells compelling learning stories. You'll master the art of connecting learning across different experiences, helping children see themselves as capable researchers building knowledge over time. Through advanced techniques and real classroom applications, you'll develop the confidence to guide complex investigations while maintaining the child-led spirit of inquiry-based learning.
-
-**Course 4: Mastering the Floorbook Approach**
-*Leadership and Mastery*
-Step into mastery and become a leader in the field of inquiry-based learning. This advanced course prepares you to create transformative learning environments that truly embody the phrase "expansive, powerful, and potentiating." You'll learn to orchestrate sophisticated conversations where children build complex ideas together, use Floorbooks as living curriculum documents, and develop the skills to mentor others on their journey. This is where you transition from practitioner to innovator, contributing to the field while creating learning experiences that children will remember for a lifetime. You'll emerge as a confident leader ready to champion inquiry-based learning in your community.
-
-## What Makes This Series Unique
-
-**Incremental Skill Building**: Each course builds systematically on the previous one, ensuring no gaps in your learning journey.
-
-**Philosophy + Practice**: We don't just teach techniques—we help you understand the 'why' behind every approach, making you a thoughtful practitioner.
-
-**Real Classroom Application**: Every module includes practical exercises, real examples, and opportunities to implement learning immediately in your setting.
-
-**Ongoing Support**: Through Child Voice and Practitioner Voice audio scenarios, you'll hear from children and experienced educators throughout your journey.
-
-**Professional Growth**: By series completion, you'll not only transform your own practice but be equipped to guide others in their learning journey.
-
-## Expected Transformation
-
-**After Course 1**: You'll see children differently and understand the power of inquiry-based approaches.
-
-**After Course 2**: You'll have practical tools working in your setting and confidence in facilitating meaningful conversations.
-
-**After Course 3**: Your practice will be sophisticated and intentional, with deep impact on children's learning experiences.
-
-**After Course 4**: You'll be a master practitioner and leader, ready to mentor others and contribute to the field.
-
-## Time Investment & Commitment
-
-Each course is designed for busy educators, with flexible pacing that respects your professional demands while ensuring deep learning. The series represents approximately 40-60 hours of professional development, spread across practical modules that you can implement immediately in your setting.
-
-This isn't just professional development—it's a career transformation that will change how you see yourself as an educator and how children experience learning in your care.
-
-**Ready to begin your transformation? Start with Course 1: Foundations of Inquiry-Based Learning.**`,
+        content: data.content,
         lastModified: '2024-01-15T10:30:00Z',
         translationStatus: {
           'nl': {
@@ -132,7 +81,7 @@ This isn't just professional development—it's a career transformation that wil
         }
       }
       
-      setProgram(mockProgram)
+      setProgram(program)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load program details')
     } finally {
@@ -220,6 +169,17 @@ This isn't just professional development—it's a career transformation that wil
               </div>
             </div>
             <div className="flex items-center space-x-3">
+              <select
+                value={selectedTheme}
+                onChange={(e) => setSelectedTheme(e.target.value as any)}
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="default">Default Theme</option>
+                <option value="minimal">Minimal</option>
+                <option value="academic">Academic</option>
+                <option value="modern">Modern</option>
+                <option value="warm">Warm</option>
+              </select>
               <button
                 onClick={handleViewTranslations}
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
@@ -246,7 +206,7 @@ This isn't just professional development—it's a career transformation that wil
         <div className="bg-white rounded-lg shadow-sm border">
           <div className="p-8">
             <ErrorBoundary>
-              <MarkdownRenderer content={program.content} />
+              <MarkdownRenderer content={program.content} theme={selectedTheme} />
             </ErrorBoundary>
           </div>
         </div>
