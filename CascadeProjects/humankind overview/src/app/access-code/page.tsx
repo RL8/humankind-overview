@@ -55,8 +55,9 @@ export default function AccessCodePage() {
       if (success) {
         // Set access code cookie for middleware
         document.cookie = `access-code=test-bypass; path=/; max-age=86400` // 24 hours
-        // Redirect to dashboard (test user is already logged in)
-        router.push('/dashboard')
+        // Redirect based on user role (consistent with regular login)
+        const redirectUrl = role === UserRole.COMPOSER ? '/training-programs' : '/dashboard'
+        router.push(redirectUrl)
       } else {
         setError('Failed to create test user')
       }

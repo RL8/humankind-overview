@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user role from database
-    const { data, error } = await (supabaseAdmin as any)
+    const { data, error } = await (getSupabaseAdmin() as any)
       .from('users')
       .select('role, email, name, organization')
       .eq('id', userId)

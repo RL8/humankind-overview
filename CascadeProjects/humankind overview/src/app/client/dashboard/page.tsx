@@ -255,7 +255,7 @@ export default function ClientDashboardPage() {
                       Need Help?
                     </h3>
                     <p className="mt-1 text-blue-100">
-                      Have questions about your training programmes? Contact our support team or 
+                      Have questions about your training programs? Contact our support team or 
                       use the feedback system to communicate with the content creators.
                     </p>
                     <div className="mt-4">

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import { UserRole } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use UPSERT to create or update user record
-    const { data, error } = await (supabaseAdmin as any)
+    const { data, error } = await (getSupabaseAdmin() as any)
       .from('users')
       .upsert({
         id: userId,

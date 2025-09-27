@@ -8,6 +8,7 @@ import { DefaultProgramService } from '@/services/default-program-service'
 import { TrainingProgram } from '@/types'
 import { useAuth } from '@/hooks/useAuth'
 import { UserRole } from '@/lib/auth'
+import { TranslationModal } from '@/components/common/TranslationModal'
 
 export default function TrainingProgramsPage() {
   const { user } = useAuth()
@@ -16,6 +17,8 @@ export default function TrainingProgramsPage() {
   const [error, setError] = useState<string | null>(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [copyingProgram, setCopyingProgram] = useState<string | null>(null)
+  const [showTranslationModal, setShowTranslationModal] = useState(false)
+  const [selectedProgram, setSelectedProgram] = useState<TrainingProgram | null>(null)
   const [newProgram, setNewProgram] = useState({
     title: '',
     description: '',
@@ -29,11 +32,45 @@ export default function TrainingProgramsPage() {
   const loadPrograms = async () => {
     try {
       setLoading(true)
-      const response = await ContentService.getTrainingPrograms({
-        clientId: user?.role === UserRole.CLIENT ? user.id : undefined,
-        includeDefault: true
-      })
-      setPrograms(response.data || [])
+      // Mock data with translation variants for now
+      const mockPrograms: TrainingProgram[] = [
+        {
+          id: 'floorbook-approach',
+          title: 'Floorbook Approach - Complete Learning Series',
+          description: 'A comprehensive learning series that transforms how you understand children, learning, and your role as an educator.',
+          status: 'published',
+          created_at: '2024-01-15T10:30:00Z',
+          updated_at: '2024-01-15T10:30:00Z',
+          created_by: 'system',
+          client_id: null,
+          users: null,
+          language: 'en',
+          translationStatus: {
+            'nl': { exists: true, upToDate: true, lastTranslated: '2024-01-15T11:00:00Z' },
+            'de': { exists: false, upToDate: false, lastTranslated: '' },
+            'zh-CN': { exists: false, upToDate: false, lastTranslated: '' }
+          }
+        },
+        {
+          id: 'floorbook-approach-nl',
+          title: 'Floorbook Aanpak - Volledige Leerserie',
+          description: 'Een transformerende professionele leerreis die zal revolutioneren hoe je kinderen, leren en jouw rol als opvoeder begrijpt.',
+          status: 'published',
+          created_at: '2024-01-15T11:00:00Z',
+          updated_at: '2024-01-15T11:00:00Z',
+          created_by: 'system',
+          client_id: null,
+          users: null,
+          language: 'nl',
+          parentProgramId: 'floorbook-approach',
+          translationStatus: {
+            'en': { exists: true, upToDate: true, lastTranslated: '2024-01-15T10:30:00Z' },
+            'de': { exists: false, upToDate: false, lastTranslated: '' },
+            'zh-CN': { exists: false, upToDate: false, lastTranslated: '' }
+          }
+        }
+      ]
+      setPrograms(mockPrograms)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load programs')
     } finally {
@@ -85,6 +122,15 @@ export default function TrainingProgramsPage() {
     } finally {
       setCopyingProgram(null)
     }
+  }
+
+  const handleViewTranslations = (program: TrainingProgram) => {
+    setSelectedProgram(program)
+    setShowTranslationModal(true)
+  }
+
+  const handleViewDetails = (program: TrainingProgram) => {
+    window.location.href = `/training-programs/${program.id}/details`
   }
 
   const getStatusColor = (status: string) => {
@@ -227,10 +273,11 @@ export default function TrainingProgramsPage() {
                   const isDefault = DefaultProgramService.isDefaultProgram(program.id)
                   const canCreateCopy = user && DefaultProgramService.canCreateCopy(user.role as string)
                   const canEditOriginal = user && DefaultProgramService.canEditOriginal(user.role as string)
+                  const isTranslation = program.parentProgramId
                   
                   return (
                     <li key={program.id}>
-                      <div className={`px-4 py-4 flex items-center justify-between hover:bg-gray-50 ${isDefault ? 'bg-blue-50 border-l-4 border-blue-400' : ''}`}>
+                      <div className={`px-4 py-4 flex items-center justify-between hover:bg-gray-50 ${isDefault ? 'bg-blue-50 border-l-4 border-blue-400' : isTranslation ? 'bg-gray-50 border-l-4 border-gray-300 ml-4' : ''}`}>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
@@ -240,6 +287,11 @@ export default function TrainingProgramsPage() {
                               {isDefault && (
                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                   Default Program
+                                </span>
+                              )}
+                              {isTranslation && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                  {program.language?.toUpperCase()} Translation
                                 </span>
                               )}
                             </div>
@@ -255,6 +307,8 @@ export default function TrainingProgramsPage() {
                           <div className="mt-2 flex items-center text-sm text-gray-500">
                             {isDefault ? (
                               <span className="text-blue-600 font-medium">Available to all users</span>
+                            ) : isTranslation ? (
+                              <span className="text-gray-600 font-medium">Translation variant</span>
                             ) : (
                               <>
                                 <span>Created {new Date(program.created_at).toLocaleDateString()}</span>
@@ -285,11 +339,22 @@ export default function TrainingProgramsPage() {
                               )}
                             </button>
                           )}
+                          {!isTranslation && (
+                            <button
+                              onClick={() => handleViewTranslations(program)}
+                              className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                              </svg>
+                              View Translations
+                            </button>
+                          )}
                           <button
-                            onClick={() => window.location.href = `/training-programs/${program.id}`}
+                            onClick={() => handleViewDetails(program)}
                             className="text-blue-600 hover:text-blue-900 text-sm font-medium"
                           >
-                            {isDefault ? 'View Program' : 'View Details'}
+                            View Details
                           </button>
                         </div>
                       </div>
@@ -301,6 +366,20 @@ export default function TrainingProgramsPage() {
           </div>
         </div>
       </div>
+
+      {/* Translation Modal */}
+      {showTranslationModal && selectedProgram && (
+        <TranslationModal
+          programId={selectedProgram.id}
+          programTitle={selectedProgram.title}
+          currentLanguage={selectedProgram.language || 'en'}
+          translationStatus={selectedProgram.translationStatus || {}}
+          onClose={() => {
+            setShowTranslationModal(false)
+            setSelectedProgram(null)
+          }}
+        />
+      )}
     </ProtectedRoute>
   )
 }

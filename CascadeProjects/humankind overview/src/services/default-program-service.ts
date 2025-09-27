@@ -1,4 +1,4 @@
-import { TrainingProgramme, Course, Module } from '@/types'
+import { TrainingProgram, Course, Module } from '@/types'
 import { FLOORBOOK_PROGRAM, FLOORBOOK_COURSES, FLOORBOOK_MODULES, getCompleteFloorbookProgram } from '@/data/floorbook-program'
 import { ContentService } from './content-service'
 
@@ -6,7 +6,7 @@ export class DefaultProgramService {
   /**
    * Get the default Floorbook program that should appear for all users
    */
-  static getDefaultProgram(): TrainingProgramme {
+  static getDefaultProgram(): TrainingProgram {
     return FLOORBOOK_PROGRAM
   }
 
@@ -55,7 +55,7 @@ export class DefaultProgramService {
   /**
    * Create a personal copy of the default program for a user
    */
-  static async createPersonalCopy(userId: string, userRole: string): Promise<TrainingProgramme> {
+  static async createPersonalCopy(userId: string, userRole: string): Promise<TrainingProgram> {
     // Check if user has permission to create copies
     if (!this.canCreateCopy(userRole)) {
       throw new Error('You do not have permission to create a copy of this program')
@@ -64,9 +64,9 @@ export class DefaultProgramService {
     const defaultProgram = this.getCompleteDefaultProgram()
     
     // Create the main program
-    const personalProgram = await ContentService.createTrainingProgramme({
-      title: `${defaultProgram.programme.title} - My Copy`,
-      description: defaultProgram.programme.description,
+    const personalProgram = await ContentService.createTrainingProgram({
+      title: `${defaultProgram.program.title} - My Copy`,
+      description: defaultProgram.program.description,
       client_id: userId,
       created_by: userId
     })
@@ -74,7 +74,7 @@ export class DefaultProgramService {
     // Create courses and modules
     for (const course of defaultProgram.courses) {
       const personalCourse = await ContentService.createCourse(personalProgram.id, {
-        programme_id: personalProgram.id,
+        program_id: personalProgram.id,
         title: course.title,
         description: course.description,
         order_index: course.order_index
@@ -114,7 +114,7 @@ export class DefaultProgramService {
    */
   static async getUserPrograms(userId: string, userRole: string) {
     // Get user's own programs
-    const userPrograms = await ContentService.getTrainingProgrammes({
+    const userPrograms = await ContentService.getTrainingPrograms({
       clientId: userRole === 'client' ? userId : undefined
     })
 

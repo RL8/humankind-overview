@@ -17,7 +17,7 @@ export async function GET(
     const { data, error } = await supabase
       .from('courses')
       .select('*')
-      .eq('programme_id', params.id)
+      .eq('program_id', params.id)
       .order('order_index', { ascending: true })
 
     if (error) {
@@ -58,7 +58,7 @@ export async function POST(
     const { data, error } = await (supabase as any)
       .from('courses')
       .insert({
-        programme_id: params.id,
+        program_id: params.id,
         title,
         description,
         order_index,

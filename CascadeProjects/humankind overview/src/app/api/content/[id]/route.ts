@@ -58,7 +58,7 @@ async function handleUpdateContent(
       language,
       content_type,
       status,
-      programme_id,
+      program_id,
       course_id,
       module_id,
       unit_id,
@@ -72,7 +72,7 @@ async function handleUpdateContent(
       language,
       content_type,
       status,
-      programme_id,
+      program_id,
       course_id,
       module_id,
       unit_id

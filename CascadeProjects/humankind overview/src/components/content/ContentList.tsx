@@ -6,7 +6,7 @@ import { formatFileSize, getFileTypeIcon } from '@/lib/storage'
 import { useAuth } from '@/hooks/useAuth'
 
 interface ContentListProps {
-  programmeId?: string
+  programId?: string
   courseId?: string
   moduleId?: string
   unitId?: string
@@ -17,7 +17,7 @@ interface ContentListProps {
 }
 
 export default function ContentList({
-  programmeId,
+  programId,
   courseId,
   moduleId,
   unitId,
@@ -53,7 +53,7 @@ export default function ContentList({
       if (filters.type) params.append('type', filters.type)
       if (filters.language) params.append('language', filters.language)
       if (filters.status) params.append('status', filters.status)
-      if (programmeId) params.append('programme_id', programmeId)
+      if (programId) params.append('program_id', programId)
       
       params.append('limit', pagination.limit.toString())
       params.append('offset', reset ? '0' : pagination.offset.toString())
@@ -90,7 +90,7 @@ export default function ContentList({
 
   useEffect(() => {
     fetchContent(true)
-  }, [searchQuery, filters, programmeId, courseId, moduleId, unitId])
+  }, [searchQuery, filters, programId, courseId, moduleId, unitId])
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -342,10 +342,10 @@ function ContentItem({
             <span>{formatDate(content.created_at)}</span>
             <span>•</span>
             <span className="capitalize">{content.language}</span>
-            {'programme_title' in content && content.programme_title && (
+            {'program_title' in content && content.program_title && (
               <>
                 <span>•</span>
-                <span>{content.programme_title}</span>
+                <span>{content.program_title}</span>
               </>
             )}
             {'uploaded_by_name' in content && content.uploaded_by_name && (

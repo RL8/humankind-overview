@@ -1,4 +1,4 @@
-import { supabase, supabaseAdmin } from './supabase'
+import { supabase, getSupabaseAdmin } from './supabase'
 import type { User, AuthError } from '@supabase/supabase-js'
 
 // User roles enum
@@ -369,7 +369,7 @@ export class AuthService {
   static async assignRole(userId: string, role: UserRole): Promise<{ error: AuthError | null }> {
     try {
       // Update users table
-      const { error: dbError } = await (supabaseAdmin as any)
+      const { error: dbError } = await (getSupabaseAdmin() as any)
         .from('users')
         .update({ role })
         .eq('id', userId)
@@ -384,7 +384,7 @@ export class AuthService {
       }
 
       // Update auth metadata
-      const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      const { error: authError } = await getSupabaseAdmin().auth.admin.updateUserById(userId, {
         user_metadata: { role }
       })
 

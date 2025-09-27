@@ -1,5 +1,7 @@
 import { supabase } from './supabase'
-import { ContentType } from '@/services/content-service'
+
+// Content type for file uploads
+export type ContentType = 'document' | 'video' | 'audio' | 'image' | 'presentation' | 'other'
 
 // File validation constants
 export const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100MB
@@ -106,7 +108,7 @@ export function validateFile(file: File): FileValidationResult {
 // Generate secure file path
 export function generateFilePath(
   clientId: string,
-  programmeId: string,
+  programId: string,
   fileName: string,
   userId: string
 ): string {
@@ -118,7 +120,7 @@ export function generateFilePath(
     .replace(/[^a-zA-Z0-9-_]/g, '-')
     .substring(0, 50)
   
-  return `clients/${clientId}/programmes/${programmeId}/${userId}/${timestamp}-${randomId}-${sanitizedName}${fileExtension}`
+  return `clients/${clientId}/programs/${programId}/${userId}/${timestamp}-${randomId}-${sanitizedName}${fileExtension}`
 }
 
 // Calculate file hash (for deduplication)

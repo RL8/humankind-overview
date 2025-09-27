@@ -38,29 +38,38 @@ export const supabase = (() => {
 })()
 
 // Create a supabase client with service role for admin operations
-export const supabaseAdmin = (() => {
+// Only available server-side for security reasons
+let adminClient: ReturnType<typeof createClient<Database>> | null = null
+
+export const getSupabaseAdmin = () => {
   if (typeof window !== 'undefined') {
-    if (!window.__supabaseAdminClient) {
-      console.log('Creating new Supabase admin client instance (window singleton)')
-      window.__supabaseAdminClient = createClient<Database>(
-        config.supabase.url,
-        config.supabase.serviceRoleKey
-      )
-    }
-    return window.__supabaseAdminClient
-  } else {
-    // Server-side fallback
-    return createClient<Database>(
+    throw new Error('Admin client should not be used in browser - use API routes instead')
+  }
+  
+  if (!adminClient) {
+    console.log('Creating new Supabase admin client instance (server-side)')
+    adminClient = createClient<Database>(
       config.supabase.url,
       config.supabase.serviceRoleKey
     )
   }
+  
+  return adminClient
+}
+
+// Legacy export for backward compatibility (returns null in browser)
+export const supabaseAdmin = (() => {
+  if (typeof window !== 'undefined') {
+    console.warn('supabaseAdmin is not available in browser - use API routes instead')
+    return null as any
+  }
+  return getSupabaseAdmin()
 })()
 
 // Export a function to check client instances (for debugging)
 export const getClientInstanceInfo = () => ({
   hasClient: typeof window !== 'undefined' ? !!window.__supabaseClient : true,
-  hasAdminClient: typeof window !== 'undefined' ? !!window.__supabaseAdminClient : true
+  hasAdminClient: typeof window !== 'undefined' ? false : !!adminClient
 })
 
 // Database types (to be updated when schema is finalized)
@@ -96,7 +105,7 @@ export interface Database {
           last_login?: string
         }
       }
-      training_programmes: {
+      training_programs: {
         Row: {
           id: string
           title: string

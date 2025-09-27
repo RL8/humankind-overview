@@ -1,276 +1,240 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { CommentService } from '@/services/comment-service'
-import { Comment, CreateCommentInput } from '@/types'
-import { useAuth } from '@/hooks/useAuth'
+import { useState, useEffect, useRef } from 'react'
 
-interface CommentSystemProps {
-  contentId: string
-  contentType: 'module' | 'unit'
-  onCommentAdded?: (comment: Comment) => void
-  onCommentUpdated?: (comment: Comment) => void
-  onCommentDeleted?: (commentId: string) => void
+interface Comment {
+  id: string
+  text: string
+  comment: string
+  author: string
+  timestamp: string
+  position: {
+    start: number
+    end: number
+  }
 }
 
-export default function CommentSystem({
-  contentId,
-  contentType,
-  onCommentAdded,
-  onCommentUpdated,
-  onCommentDeleted
-}: CommentSystemProps) {
-  const { user } = useAuth()
+interface CommentSystemProps {
+  programId: string
+  onClose: () => void
+}
+
+export function CommentSystem({ programId, onClose }: CommentSystemProps) {
+  const [selectedText, setSelectedText] = useState('')
+  const [comment, setComment] = useState('')
   const [comments, setComments] = useState<Comment[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [newComment, setNewComment] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [editingComment, setEditingComment] = useState<string | null>(null)
-  const [editText, setEditText] = useState('')
+  const [showCommentForm, setShowCommentForm] = useState(false)
+  const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Load existing comments
     loadComments()
-  }, [contentId, contentType])
+  }, [programId])
+
+  useEffect(() => {
+    // Add selection event listeners
+    const handleSelection = () => {
+      const selection = window.getSelection()
+      if (selection && selection.toString().trim()) {
+        const text = selection.toString().trim()
+        setSelectedText(text)
+        
+        // Calculate position in the content
+        const range = selection.getRangeAt(0)
+        const startOffset = getTextOffset(range.startContainer, range.startOffset)
+        const endOffset = getTextOffset(range.endContainer, range.endOffset)
+        
+        setSelectionRange({ start: startOffset, end: endOffset })
+        setShowCommentForm(true)
+      }
+    }
+
+    document.addEventListener('mouseup', handleSelection)
+    return () => document.removeEventListener('mouseup', handleSelection)
+  }, [])
+
+  const getTextOffset = (node: Node, offset: number): number => {
+    let textOffset = 0
+    const walker = document.createTreeWalker(
+      node,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    )
+    
+    let currentNode
+    while (currentNode = walker.nextNode()) {
+      if (currentNode === node) {
+        return textOffset + offset
+      }
+      textOffset += currentNode.textContent?.length || 0
+    }
+    
+    return textOffset
+  }
 
   const loadComments = async () => {
     try {
-      setLoading(true)
-      const commentsData = await CommentService.getComments(contentId, contentType)
-      setComments(commentsData)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load comments')
-    } finally {
-      setLoading(false)
+      // Mock data for now - will be replaced with actual API call
+      const mockComments: Comment[] = [
+        {
+          id: '1',
+          text: 'children are natural researchers',
+          comment: 'This is a key concept that needs emphasis in the Dutch translation',
+          author: 'John Doe',
+          timestamp: '2024-01-15T10:30:00Z',
+          position: { start: 150, end: 180 }
+        },
+        {
+          id: '2',
+          text: 'inquiry-based learning',
+          comment: 'Consider using a more specific term in German',
+          author: 'Jane Smith',
+          timestamp: '2024-01-15T11:15:00Z',
+          position: { start: 200, end: 220 }
+        }
+      ]
+      setComments(mockComments)
+    } catch (error) {
+      console.error('Failed to load comments:', error)
     }
   }
 
-  const handleSubmitComment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newComment.trim() || !user) return
+  const handleSubmitComment = async () => {
+    if (!comment.trim() || !selectedText.trim() || !selectionRange) return
 
-    setSubmitting(true)
     try {
-      const commentData: CreateCommentInput = {
-        content_id: contentId,
-        content_type: contentType,
-        message: newComment.trim()
+      const newComment: Comment = {
+        id: Date.now().toString(),
+        text: selectedText,
+        comment: comment.trim(),
+        author: 'Current User', // Will be replaced with actual user
+        timestamp: new Date().toISOString(),
+        position: selectionRange
       }
 
-      const comment = await CommentService.createComment(commentData, user.id)
-      setComments([...comments, comment])
-      setNewComment('')
-      onCommentAdded?.(comment)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit comment')
-    } finally {
-      setSubmitting(false)
+      setComments(prev => [...prev, newComment])
+      setComment('')
+      setSelectedText('')
+      setSelectionRange(null)
+      setShowCommentForm(false)
+      
+      // Clear selection
+      window.getSelection()?.removeAllRanges()
+    } catch (error) {
+      console.error('Failed to save comment:', error)
     }
   }
 
-  const handleUpdateComment = async (commentId: string) => {
-    if (!editText.trim()) return
-
-    try {
-      const updatedComment = await CommentService.updateComment(commentId, {
-        message: editText.trim()
-      })
-      setComments(comments.map(c => c.id === commentId ? updatedComment : c))
-      setEditingComment(null)
-      setEditText('')
-      onCommentUpdated?.(updatedComment)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update comment')
-    }
-  }
-
-  const handleDeleteComment = async (commentId: string) => {
-    if (!confirm('Are you sure you want to delete this comment?')) return
-
-    try {
-      await CommentService.deleteComment(commentId)
-      setComments(comments.filter(c => c.id !== commentId))
-      onCommentDeleted?.(commentId)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete comment')
-    }
-  }
-
-  const handleResolveComment = async (commentId: string) => {
-    try {
-      const updatedComment = await CommentService.updateComment(commentId, {
-        status: 'resolved'
-      })
-      setComments(comments.map(c => c.id === commentId ? updatedComment : c))
-      onCommentUpdated?.(updatedComment)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to resolve comment')
-    }
-  }
-
-  const startEditing = (comment: Comment) => {
-    setEditingComment(comment.id)
-    setEditText(comment.message)
-  }
-
-  const cancelEditing = () => {
-    setEditingComment(null)
-    setEditText('')
-  }
-
-  const canEditComment = (comment: Comment) => {
-    return user && (user.id === comment.author_id || user.role === 'admin' || user.role === 'principal')
-  }
-
-  const canResolveComment = (comment: Comment) => {
-    return user && (user.role === 'admin' || user.role === 'principal' || user.role === 'composer')
-  }
-
-  if (loading) {
-    return (
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading comments...</p>
-        </div>
-      </div>
-    )
+  const handleCancelComment = () => {
+    setComment('')
+    setSelectedText('')
+    setSelectionRange(null)
+    setShowCommentForm(false)
+    window.getSelection()?.removeAllRanges()
   }
 
   return (
-    <div className="bg-white shadow rounded-lg">
-      <div className="px-4 py-5 sm:p-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-          Comments & Feedback ({comments.length})
-        </h3>
+    <>
+      {/* Overlay */}
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={onClose} />
+      
+      {/* Comment System */}
+      <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-50 flex flex-col">
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Comments</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <p className="text-sm text-gray-500 mt-1">
+            Select text to add comments
+          </p>
+          </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="text-sm text-red-600">{error}</div>
+        {/* Comment Form */}
+        {showCommentForm && (
+          <div className="p-4 border-b border-gray-200 bg-blue-50">
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Selected Text:
+              </label>
+              <div className="text-sm text-gray-600 bg-white p-2 rounded border">
+                "{selectedText}"
+              </div>
+            </div>
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Your Comment:
+              </label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Add your comment..."
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                rows={3}
+              />
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={handleSubmitComment}
+                disabled={!comment.trim()}
+                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Save Comment
+              </button>
+              <button
+                onClick={handleCancelComment}
+                className="px-3 py-1 bg-gray-300 text-gray-700 text-sm rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         )}
 
-        {/* New Comment Form */}
-        {user && (
-          <form onSubmit={handleSubmitComment} className="mb-6">
-            <div>
-              <label htmlFor="new-comment" className="block text-sm font-medium text-gray-700 mb-2">
-                Add a comment
-              </label>
-              <textarea
-                id="new-comment"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Share your thoughts, suggestions, or concerns..."
-                disabled={submitting}
-              />
-            </div>
-            <div className="mt-3 flex justify-end">
-              <button
-                type="submit"
-                disabled={!newComment.trim() || submitting}
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submitting ? 'Submitting...' : 'Submit Comment'}
-              </button>
-            </div>
-          </form>
-        )}
-
         {/* Comments List */}
-        <div className="space-y-4">
+        <div className="flex-1 overflow-y-auto p-4">
           {comments.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center text-gray-500 py-8">
+              <svg className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              <p className="mt-2">No comments yet</p>
-              <p className="text-sm">Be the first to share your thoughts!</p>
+              <p>No comments yet</p>
+              <p className="text-sm">Select text to add the first comment</p>
             </div>
           ) : (
-            comments.map((comment) => (
-              <div key={comment.id} className={`border rounded-lg p-4 ${comment.status === 'resolved' ? 'bg-gray-50' : 'bg-white'}`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <span className="text-sm font-medium text-gray-900">
-                        {comment.author?.name || comment.author?.email || 'Unknown User'}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {new Date(comment.created_at).toLocaleString()}
-                      </span>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        comment.status === 'open' 
-                          ? 'bg-yellow-100 text-yellow-800' 
-                          : 'bg-green-100 text-green-800'
-                      }`}>
-                        {comment.status}
-                      </span>
+            <div className="space-y-4">
+              {comments.map((comment) => (
+                <div key={comment.id} className="border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="text-sm font-medium text-gray-900">
+                      {comment.author}
                     </div>
-                    
-                    {editingComment === comment.id ? (
-                      <div>
-                        <textarea
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <div className="mt-2 flex justify-end space-x-2">
-                          <button
-                            onClick={cancelEditing}
-                            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={() => handleUpdateComment(comment.id)}
-                            className="px-3 py-1 text-sm text-blue-600 hover:text-blue-800"
-                          >
-                            Save
-                          </button>
+                    <div className="text-xs text-gray-500">
+                      {new Date(comment.timestamp).toLocaleDateString()}
                         </div>
                       </div>
-                    ) : (
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.message}</p>
-                    )}
+                  <div className="text-sm text-gray-600 bg-gray-50 p-2 rounded mb-2">
+                    "{comment.text}"
                   </div>
-                  
-                  <div className="ml-4 flex-shrink-0 flex space-x-2">
-                    {canEditComment(comment) && editingComment !== comment.id && (
-                      <button
-                        onClick={() => startEditing(comment)}
-                        className="text-blue-600 hover:text-blue-800 text-sm"
-                      >
-                        Edit
-                      </button>
-                    )}
-                    {canResolveComment(comment) && comment.status === 'open' && (
-                      <button
-                        onClick={() => handleResolveComment(comment.id)}
-                        className="text-green-600 hover:text-green-800 text-sm"
-                      >
-                        Resolve
-                      </button>
-                    )}
-                    {canEditComment(comment) && (
-                      <button
-                        onClick={() => handleDeleteComment(comment.id)}
-                        className="text-red-600 hover:text-red-800 text-sm"
-                      >
-                        Delete
-                      </button>
-                    )}
+                  <div className="text-sm text-gray-800">
+                    {comment.comment}
                   </div>
                 </div>
+              ))}
               </div>
-            ))
           )}
         </div>
       </div>
-    </div>
+    </>
   )
 }

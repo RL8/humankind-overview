@@ -2,7 +2,7 @@ import { TrainingProgram, Course, Module } from '@/types'
 
 // Hardcoded Floorbook Approach program data
 export const FLOORBOOK_PROGRAM: TrainingProgram = {
-  id: 'floorbook-default',
+  id: 'floorbook_default',
   title: 'Floorbook Approach - Complete Learning Series',
   description: 'A transformative professional learning journey that will revolutionize how you understand children, learning, and your role as an educator. This comprehensive series takes you from foundational philosophy to masterful practice, ensuring each step builds meaningfully on the previous one.',
   status: 'published',
@@ -16,7 +16,7 @@ export const FLOORBOOK_PROGRAM: TrainingProgram = {
 export const FLOORBOOK_COURSES: Course[] = [
   {
     id: 'floorbook-course-1',
-    program_id: 'floorbook-default',
+    program_id: 'floorbook_default',
     title: 'Course 1: Foundations of Inquiry-Based Learning',
     description: 'Embark on a transformative journey that will fundamentally change how you see children and learning. This foundational course challenges traditional teaching methods and introduces you to the revolutionary Floorbook Approach.',
     order_index: 1,
@@ -25,7 +25,7 @@ export const FLOORBOOK_COURSES: Course[] = [
   },
   {
     id: 'floorbook-course-2',
-    program_id: 'floorbook-default',
+    program_id: 'floorbook_default',
     title: 'Course 2: My First Floorbook & Talking Tub',
     description: 'Put your new understanding into action by creating your first documentation tools. You\'ll learn the practical skills of capturing authentic conversations and making children\'s thinking visible.',
     order_index: 2,
@@ -34,7 +34,7 @@ export const FLOORBOOK_COURSES: Course[] = [
   },
   {
     id: 'floorbook-course-3',
-    program_id: 'floorbook-default',
+    program_id: 'floorbook_default',
     title: 'Course 3: Next Level Floorbooks & Talking Tubs',
     description: 'Elevate your skills with advanced techniques that transform good documentation into extraordinary learning experiences. Master the art of creating deliberate provocations and facilitating sustained inquiries.',
     order_index: 3,
@@ -43,7 +43,7 @@ export const FLOORBOOK_COURSES: Course[] = [
   },
   {
     id: 'floorbook-course-4',
-    program_id: 'floorbook-default',
+    program_id: 'floorbook_default',
     title: 'Course 4: Mastering the Floorbook Approach',
     description: 'Step into expertise and leadership, learning to create transformative environments, orchestrate complex conversations, and use documentation as living curriculum.',
     order_index: 4,
@@ -252,7 +252,7 @@ export const getFloorbookCourses = (): Course[] => {
 // Helper function to get the complete Floorbook program with courses and modules
 export const getCompleteFloorbookProgram = () => {
   return {
-    programme: FLOORBOOK_PROGRAM,
+    program: FLOORBOOK_PROGRAM,
     courses: FLOORBOOK_COURSES.map(course => ({
       ...course,
       modules: getModulesForCourse(course.id)

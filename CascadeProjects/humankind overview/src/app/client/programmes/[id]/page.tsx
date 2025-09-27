@@ -8,13 +8,13 @@ import { TrainingProgram, Course, Module } from '@/types'
 import { useAuth } from '@/hooks/useAuth'
 import { UserRole } from '@/lib/auth'
 
-interface ClientProgrammePageProps {
+interface ClientProgramPageProps {
   params: { id: string }
 }
 
-export default function ClientProgrammePage({ params }: ClientProgrammePageProps) {
+export default function ClientProgramPage({ params }: ClientProgramPageProps) {
   const { user } = useAuth()
-  const [programme, setProgramme] = useState<TrainingProgram | null>(null)
+  const [program, setProgram] = useState<TrainingProgram | null>(null)
   const [courses, setCourses] = useState<Course[]>([])
   const [selectedModule, setSelectedModule] = useState<Module | null>(null)
   const [loading, setLoading] = useState(true)
@@ -24,21 +24,21 @@ export default function ClientProgrammePage({ params }: ClientProgrammePageProps
 
   useEffect(() => {
     if (user?.role === UserRole.CLIENT) {
-      loadProgrammeData()
+      loadProgramData()
     }
   }, [params.id, user])
 
-  const loadProgrammeData = async () => {
+  const loadProgramData = async () => {
     try {
       setLoading(true)
-      const [programmeData, coursesData] = await Promise.all([
+      const [programData, coursesData] = await Promise.all([
         ContentService.getTrainingProgram(params.id),
         ContentService.getCourses(params.id)
       ])
-      setProgramme(programmeData)
+      setProgram(programData)
       setCourses(coursesData || [])
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load programme data')
+      setError(err instanceof Error ? err.message : 'Failed to load program data')
     } finally {
       setLoading(false)
     }
@@ -70,15 +70,15 @@ export default function ClientProgrammePage({ params }: ClientProgrammePageProps
     }
   }
 
-  const handleApproveProgramme = async () => {
-    if (!programme) return
+  const handleApproveProgram = async () => {
+    if (!program) return
 
     try {
-      await ContentService.updateTrainingProgram(programme.id, { status: 'approved' })
-      setProgramme({ ...programme, status: 'approved' })
-      alert('Programme approved successfully!')
+      await ContentService.updateTrainingProgram(program.id, { status: 'approved' })
+      setProgram({ ...program, status: 'approved' })
+      alert('Program approved successfully!')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to approve programme')
+      setError(err instanceof Error ? err.message : 'Failed to approve program')
     }
   }
 
@@ -100,7 +100,7 @@ export default function ClientProgrammePage({ params }: ClientProgrammePageProps
           <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading programme...</p>
+              <p className="text-gray-600">Loading program...</p>
             </div>
           </div>
         </div>
@@ -108,15 +108,15 @@ export default function ClientProgrammePage({ params }: ClientProgrammePageProps
     )
   }
 
-  if (error || !programme) {
+  if (error || !program) {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-gray-50">
           <Navigation />
           <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">Programme Not Found</h1>
-              <p className="text-gray-600 mb-4">{error || 'The requested programme could not be found.'}</p>
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Program Not Found</h1>
+              <p className="text-gray-600 mb-4">{error || 'The requested program could not be found.'}</p>
               <button
                 onClick={() => window.location.href = '/client/dashboard'}
                 className="text-blue-600 hover:text-blue-900 font-medium"
@@ -166,28 +166,28 @@ export default function ClientProgrammePage({ params }: ClientProgrammePageProps
                         <svg className="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                         </svg>
-                        <span className="ml-4 text-sm font-medium text-gray-500">{programme.title}</span>
+                        <span className="ml-4 text-sm font-medium text-gray-500">{program.title}</span>
                       </div>
                     </li>
                   </ol>
                 </nav>
                 <h1 className="mt-2 text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-                  {programme.title}
+                  {program.title}
                 </h1>
-                {programme.description && (
-                  <p className="mt-1 text-sm text-gray-500">{programme.description}</p>
+                {program.description && (
+                  <p className="mt-1 text-sm text-gray-500">{program.description}</p>
                 )}
               </div>
               <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(programme.status)}`}>
-                  {programme.status.replace('_', ' ')}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(program.status)}`}>
+                  {program.status.replace('_', ' ')}
                 </span>
-                {programme.status === 'in_review' && (
+                {program.status === 'in_review' && (
                   <button
-                    onClick={handleApproveProgramme}
+                    onClick={handleApproveProgram}
                     className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                   >
-                    Approve Programme
+                    Approve Program
                   </button>
                 )}
               </div>

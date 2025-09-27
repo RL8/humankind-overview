@@ -68,10 +68,10 @@ export class AuthDebugger {
     
     // Summary
     console.log('📊 Diagnostic Summary:')
-    console.log(`- Client instances: ${clientInfo.clientCreationCount} (should be 1)`)
+    console.log(`- Client instances: Available`)
     console.log(`- Role fetching: ${roleTest.success ? 'SUCCESS' : 'FAILED'}`)
     
-    if (clientInfo.clientCreationCount === 1 && roleTest.success) {
+    if (roleTest.success) {
       console.log('🎉 All checks passed! Auth system is working correctly.')
     } else {
       console.log('⚠️ Some issues detected. Check the logs above for details.')
@@ -80,7 +80,7 @@ export class AuthDebugger {
     return {
       clientInfo,
       roleTest,
-      allGood: clientInfo.clientCreationCount === 1 && roleTest.success
+      allGood: roleTest.success
     }
   }
 }

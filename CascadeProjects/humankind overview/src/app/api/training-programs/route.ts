@@ -33,19 +33,23 @@ export async function GET(request: NextRequest) {
 
     const { data, error, count } = await query
 
+    // Handle database errors gracefully - still return default program if requested
+    let allPrograms: any[] = []
+    let totalCount = 0
+
     if (error) {
-      console.error('Error fetching training programs:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch training programs' },
-        { status: 500 }
-      )
+      console.error('Error fetching training programs from database:', error)
+      // Don't return error immediately - continue with default program
+    } else {
+      allPrograms = data || []
+      totalCount = count || 0
     }
 
-    // Include default program if requested
-    let allPrograms: any[] = data || []
+    // Include default program if requested (always available, even if DB fails)
     if (includeDefault) {
       const defaultProgram = DefaultProgramService.getDefaultProgram()
       allPrograms = [defaultProgram, ...allPrograms]
+      totalCount += 1
     }
 
     return NextResponse.json({
@@ -53,17 +57,33 @@ export async function GET(request: NextRequest) {
       pagination: {
         page: Math.floor(offset / limit) + 1,
         limit,
-        total: (count || 0) + (includeDefault ? 1 : 0),
-        totalPages: Math.ceil(((count || 0) + (includeDefault ? 1 : 0)) / limit)
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limit)
       }
     })
 
   } catch (error) {
     console.error('Training programs API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    
+    // Even in case of complete failure, try to return at least the default program
+    try {
+      const defaultProgram = DefaultProgramService.getDefaultProgram()
+      return NextResponse.json({
+        data: [defaultProgram],
+        pagination: {
+          page: 1,
+          limit: 50,
+          total: 1,
+          totalPages: 1
+        }
+      })
+    } catch (fallbackError) {
+      console.error('Failed to load even default program:', fallbackError)
+      return NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      )
+    }
   }
 }
 

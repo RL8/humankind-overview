@@ -89,3 +89,4 @@ playwright/.cache/
 
 # Jest
 coverage/
+.vercel

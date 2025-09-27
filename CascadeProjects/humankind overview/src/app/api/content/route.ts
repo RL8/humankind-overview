@@ -14,7 +14,7 @@ async function handleGetContent(req: NextRequest & { user?: any }) {
       content_type: searchParams.get('type') as ContentType || undefined,
       language: searchParams.get('language') || undefined,
       status: searchParams.get('status') || undefined,
-      programme_id: searchParams.get('programme_id') || undefined,
+      program_id: searchParams.get('program_id') || undefined,
       limit: parseInt(searchParams.get('limit') || '20'),
       offset: parseInt(searchParams.get('offset') || '0')
     }
@@ -26,7 +26,7 @@ async function handleGetContent(req: NextRequest & { user?: any }) {
         contentType: filters.content_type,
         language: filters.language,
         status: filters.status,
-        clientId: filters.programme_id
+        clientId: filters.program_id
       })
     } else {
       // For now, return empty array if no search query
@@ -63,7 +63,7 @@ async function handleCreateContent(req: NextRequest & { user?: any }) {
       file_size,
       mime_type,
       file_hash,
-      programme_id,
+      program_id,
       course_id,
       module_id,
       unit_id,
@@ -88,7 +88,7 @@ async function handleCreateContent(req: NextRequest & { user?: any }) {
       file_size,
       mime_type,
       file_hash,
-      programme_id,
+      program_id,
       course_id,
       module_id,
       unit_id,

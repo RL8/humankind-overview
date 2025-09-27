@@ -19,11 +19,20 @@ export interface TrainingProgram {
   title: string
   description?: string
   status: 'draft' | 'in_review' | 'approved' | 'published'
-  client_id: string
+  client_id: string | null
   created_by: string
   created_at: string
   updated_at: string
   is_default?: boolean
+  language?: string
+  parentProgramId?: string
+  translationStatus?: {
+    [language: string]: {
+      exists: boolean
+      upToDate: boolean
+      lastTranslated: string
+    }
+  }
   users?: {
     name: string
     organization?: string
@@ -52,6 +61,7 @@ export interface Course {
   order_index: number
   status: 'draft' | 'in_review' | 'approved' | 'published'
   created_at: string
+  modules?: Module[]
 }
 
 export interface CreateCourseInput {
@@ -153,6 +163,22 @@ export interface NavItem {
   icon?: string
   badge?: string
   children?: NavItem[]
+}
+
+// Content File types
+export interface ContentFile {
+  id: string
+  filename: string
+  file_path: string
+  language: string
+  content_type: 'markdown' | 'pdf' | 'image' | 'other'
+  size: number
+  last_modified: string
+  content?: string
+}
+
+export interface ContentFileData extends ContentFile {
+  content?: string
 }
 
 // Status types

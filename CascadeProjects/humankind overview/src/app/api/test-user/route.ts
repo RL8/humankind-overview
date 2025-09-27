@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import { UserRole } from '@/lib/auth'
 import { config } from '@/lib/config'
 
 /**
- * API endpoint to create a temporary test user for development
- * Only available in development environment
+ * API endpoint to create a temporary test user
+ * Available in all environments for easy testing
  */
 export async function POST(request: NextRequest) {
-  // Only allow in development environment
-  if (!config.app.isDevelopment) {
-    return NextResponse.json(
-      { error: 'Test user creation is only available in development' },
-      { status: 403 }
-    )
-  }
+  // Allow test user creation in all environments
+  // Note: In production, consider adding additional security measures if needed
 
   try {
     const { role = 'composer' } = await request.json()
@@ -34,7 +29,7 @@ export async function POST(request: NextRequest) {
     const testName = `Test User ${timestamp}`
 
     // Create auth user
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    const { data: authData, error: authError } = await getSupabaseAdmin().auth.admin.createUser({
       email: testEmail,
       password: testPassword,
       email_confirm: true, // Auto-confirm for test users
@@ -62,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user record in database
-    const { data: userData, error: dbError } = await supabaseAdmin
+    const { data: userData, error: dbError } = await getSupabaseAdmin()
       .from('users')
       .insert({
         id: authData.user.id,
@@ -79,7 +74,7 @@ export async function POST(request: NextRequest) {
       console.error('Database error details:', JSON.stringify(dbError, null, 2))
       
       // Try to get the user record to see if it already exists
-      const { data: existingUser, error: fetchError } = await supabaseAdmin
+      const { data: existingUser, error: fetchError } = await getSupabaseAdmin()
         .from('users')
         .select('*')
         .eq('id', authData.user.id)

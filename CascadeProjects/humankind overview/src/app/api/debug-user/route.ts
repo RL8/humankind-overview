@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import { config } from '@/lib/config'
 
 /**
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user from auth
-    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.getUserById(userId)
+    const { data: authUser, error: authError } = await getSupabaseAdmin().auth.admin.getUserById(userId)
     
     if (authError) {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user from database
-    const { data: dbUser, error: dbError } = await supabaseAdmin
+    const { data: dbUser, error: dbError } = await getSupabaseAdmin()
       .from('users')
       .select('*')
       .eq('id', userId)
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
 
     // If user exists in auth but not in database, try to create it
     if (result.needsFix && authUser.user) {
-      const { data: insertData, error: insertError } = await supabaseAdmin
+      const { data: insertData, error: insertError } = await getSupabaseAdmin()
         .from('users')
         .insert({
           id: authUser.user.id,
